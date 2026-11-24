@@ -21,9 +21,15 @@
   *{box-sizing:border-box; margin:0; padding:0;}
   body{background:#0000ff; font-family:"Noto Sans JP","Hiragino Kaku Gothic ProN",sans-serif;}
   .stage{max-width:500px; margin:0 auto; position:relative;}
-  .hero-img{position:relative;}
-  .hero-img img{display:block; width:100%; height:auto;}
-  .secret{position:absolute; inset:0; overflow:hidden; color:transparent; font-size:16px; line-height:1.6; word-break:break-all; user-select:text;}
+  .hero-img{position:relative; aspect-ratio:1170 / 2004; background:#0000ff; overflow:hidden;}
+  .hero-img canvas{position:absolute; inset:0; width:100%; height:100%; display:block;}
+  .hero-img img.layer{position:absolute; inset:0; width:100%; height:100%; display:block;}
+
+  /* リアルタイム認識風ボックス */
+  .det{position:absolute; z-index:4; border:1px solid rgba(255,255,255,.92); box-sizing:border-box; pointer-events:none; opacity:0; animation:detIn .18s steps(2) forwards;}
+  .det span{position:absolute; top:2px; right:5px; font-family:ui-monospace, Menlo, monospace; font-size:clamp(7px, 2vw, 10.5px); color:#fff; white-space:nowrap; text-shadow:0 0 3px rgba(0,0,120,.8);}
+  @keyframes detIn{0%{opacity:0; transform:scale(1.04);}60%{opacity:1;}100%{opacity:1; transform:scale(1);}}
+  .secret{position:absolute; inset:0; z-index:5; overflow:hidden; color:transparent; font-size:16px; line-height:1.6; word-break:break-all; user-select:text;}
   .secret::selection{background:#ffb7d5; color:#f00;}
   .sheet{background:#fff; color:#0000ff; padding:26px 16px 30px;}
   h1{font-size:30px; font-weight:700;}
@@ -86,7 +92,19 @@
 <body>
 <div class="stage">
   <div class="hero-img">
-    <img src="char_main.jpeg" alt="マイキャラ">
+    <canvas id="gridCanvas" width="585" height="1002"></canvas>
+    <img class="layer" src="layer_bg.png" alt="">
+    <img class="layer" src="layer_char.png" alt="マイキャラ">
+    <div class="det" style="left:37.3%;top:0.5%;width:22.3%;height:12.5%;animation-delay:0.00s"><span data-name="fluffy-cat-blue-accessory">fluffy-cat-blue-accessory</span></div>
+    <div class="det" style="left:45.7%;top:3.9%;width:31.2%;height:10.4%;animation-delay:0.13s"><span data-name="fluffy-cat-blue-accessory">fluffy-cat-blue-accessory</span></div>
+    <div class="det" style="left:62.5%;top:6.7%;width:28.5%;height:12.5%;animation-delay:0.26s"><span data-name="fluffy-cat-blue-accessory">fluffy-cat-blue-accessory</span></div>
+    <div class="det" style="left:36.1%;top:21.1%;width:35.9%;height:18.4%;animation-delay:0.39s"><span data-name="hitamuki-face">hitamuki-face</span></div>
+    <div class="det" style="left:57.4%;top:27.0%;width:13.8%;height:6.1%;animation-delay:0.52s"><span data-name="priusa-purple-eye">priusa-purple-eye</span></div>
+    <div class="det" style="left:2.8%;top:37.6%;width:24.4%;height:12.9%;animation-delay:0.65s"><span data-name="fluffy-cat-blue-tops">fluffy-cat-blue-tops</span></div>
+    <div class="det" style="left:20.6%;top:40.0%;width:46.3%;height:26.7%;animation-delay:0.78s"><span data-name="fluffy-cat-blue-tops">fluffy-cat-blue-tops</span></div>
+    <div class="det" style="left:66.1%;top:44.3%;width:24.4%;height:14.1%;animation-delay:0.91s"><span data-name="fluffy-cat-blue-tops">fluffy-cat-blue-tops</span></div>
+    <div class="det" style="left:0.0%;top:59.4%;width:31.1%;height:30.4%;animation-delay:1.04s"><span data-name="fluffy-cat-blue-bottoms">fluffy-cat-blue-bottoms</span></div>
+    <div class="det" style="left:2.1%;top:68.6%;width:93.9%;height:30.4%;animation-delay:1.17s"><span data-name="fluffy-cat-blue-bottoms">fluffy-cat-blue-bottoms</span></div>
     <div class="secret">すぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせ</div>
   </div>
 
@@ -277,6 +295,150 @@
   document.addEventListener('dragstart', function(e){
     if (e.target && e.target.tagName === 'IMG') e.preventDefault();
   });
+</script>
+
+<script>
+  (function(){
+    var cv = document.getElementById('gridCanvas');
+    if (!cv) return;
+    var ctx = cv.getContext('2d');
+    var W = cv.width, H = cv.height;
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var scrollPhase = 0, lastScroll = window.scrollY;
+
+    var ripples = [];   /* {x, y, start} 触った場所からの波紋 */
+    var nowSec = 0;
+    function warp(x, y, t){
+      var dx = Math.sin(y * 0.014 + t * 1.25) * 13 + Math.sin(y * 0.05 - t * 0.8 + x * 0.004) * 5 + Math.sin((x + y) * 0.006 + t * 0.6) * 6;
+      var dy = Math.cos(x * 0.012 + t * 1.05) * 13 + Math.cos(x * 0.045 + t * 0.7 - y * 0.004) * 5 + Math.cos((x - y) * 0.005 - t * 0.5) * 6;
+      for (var i = 0; i < ripples.length; i++) {
+        var r = ripples[i];
+        var age = nowSec - r.start;
+        if (age < 0 || age > 2.4) continue;
+        var ddx = x - r.x, ddy = y - r.y;
+        var dist = Math.sqrt(ddx * ddx + ddy * ddy) || 1;
+        var front = age * 260;                                   /* 波紋の広がる速さ */
+        var band = Math.exp(-Math.pow(dist - front, 2) / 5200);  /* 輪の部分だけ揺らす */
+        var amp = Math.sin(dist * 0.11 - age * 13) * 15 * band * Math.exp(-age * 1.15);
+        dx += (ddx / dist) * amp;
+        dy += (ddy / dist) * amp;
+      }
+      return [x + dx, y + dy];
+    }
+    /* 触った・クリックした場所に波紋 */
+    var hero = cv.parentElement;
+    var lastRip = 0, lastX = -999, lastY = -999;
+    function addRipple(e){
+      var rect = cv.getBoundingClientRect();
+      var x = (e.clientX - rect.left) * (W / rect.width);
+      var y = (e.clientY - rect.top) * (H / rect.height);
+      ripples.push({x: x, y: y, start: nowSec});
+      if (ripples.length > 7) ripples.shift();
+      lastRip = nowSec; lastX = x; lastY = y;
+    }
+    hero.addEventListener('pointerdown', addRipple);
+    hero.addEventListener('pointermove', function(e){
+      if (nowSec - lastRip < 0.14) return;
+      var rect = cv.getBoundingClientRect();
+      var x = (e.clientX - rect.left) * (W / rect.width);
+      var y = (e.clientY - rect.top) * (H / rect.height);
+      if (Math.abs(x - lastX) + Math.abs(y - lastY) < 46) return;
+      addRipple(e);
+    });
+    function draw(t){
+      ctx.fillStyle = '#0000ff';
+      ctx.fillRect(0, 0, W, H);
+      ctx.strokeStyle = 'rgba(130,185,255,0.55)';
+      ctx.lineWidth = 1;
+      var gap = 42, x, y, p;
+      for (x = -gap; x <= W + gap; x += gap) {
+        ctx.beginPath();
+        for (y = -20; y <= H + 20; y += 12) {
+          p = warp(x, y, t);
+          if (y === -20) ctx.moveTo(p[0], p[1]); else ctx.lineTo(p[0], p[1]);
+        }
+        ctx.stroke();
+      }
+      for (y = -gap; y <= H + gap; y += gap) {
+        ctx.beginPath();
+        for (x = -20; x <= W + 20; x += 12) {
+          p = warp(x, y, t);
+          if (x === -20) ctx.moveTo(p[0], p[1]); else ctx.lineTo(p[0], p[1]);
+        }
+        ctx.stroke();
+      }
+    }
+    if (reduce) { draw(0); return; }
+    var running = true;
+    new IntersectionObserver(function(es){
+      es.forEach(function(e){ running = e.isIntersecting; });
+    }).observe(cv);
+    (function loop(ts){
+      nowSec = (ts || 0) * 0.001;
+      var sc = window.scrollY;
+      scrollPhase += (sc - lastScroll) * 0.0035;   /* スクロールでも波が進む */
+      lastScroll = sc;
+      ripples = ripples.filter(function(r){ return nowSec - r.start < 2.4; });
+      if (running) draw(nowSec + scrollPhase);
+      requestAnimationFrame(loop);
+    })(0);
+  })();
+</script>
+
+<script>
+  (function(){
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      document.querySelectorAll('.det').forEach(function(b){ b.style.opacity = 1; b.style.animation = 'none'; });
+      return;
+    }
+    var boxes = Array.prototype.slice.call(document.querySelectorAll('.det'));
+    boxes.forEach(function(box){
+      var span = box.querySelector('span');
+      var name = span.getAttribute('data-name');
+      function conf(){ return 84 + Math.floor(Math.random() * 16); }
+      span.textContent = name + ' ' + conf() + '%';
+      /* 確信度の数値をちょこちょこ更新 */
+      (function tickConf(){
+        setTimeout(function(){
+          if (!box.classList.contains('lost')) span.textContent = name + ' ' + conf() + '%';
+          tickConf();
+        }, 700 + Math.random() * 1600);
+      })();
+      /* ランダムに一瞬途切れる */
+      (function dropout(){
+        setTimeout(function(){
+          box.style.opacity = 0;
+          setTimeout(function(){ box.style.opacity = 1; }, 60 + Math.random() * 220);
+          dropout();
+        }, 1800 + Math.random() * 5200);
+      })();
+      /* たまに認識ロスト→再認識 */
+      (function lose(){
+        setTimeout(function(){
+          box.classList.add('lost');
+          span.textContent = name + ' --%';
+          var blinks = 0;
+          var iv = setInterval(function(){
+            box.style.opacity = (blinks % 2) ? 1 : 0.25;
+            if (++blinks > 5) {
+              clearInterval(iv);
+              box.style.opacity = 1;
+              box.classList.remove('lost');
+              span.textContent = name + ' ' + conf() + '%';
+            }
+          }, 90);
+          lose();
+        }, 9000 + Math.random() * 14000);
+      })();
+      /* 微妙なブレ */
+      (function jitter(){
+        setTimeout(function(){
+          box.style.transform = 'translate(' + (Math.random() * 3 - 1.5) + 'px,' + (Math.random() * 3 - 1.5) + 'px)';
+          jitter();
+        }, 120 + Math.random() * 300);
+      })();
+    });
+  })();
 </script>
 </body>
 </html>
