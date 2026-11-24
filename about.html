@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>いんふぉめ〜しょん</title>
+<style>
+  :root{
+    --blue:#0000ee; --blue-dark:#0000b8; --blue-pale:#e8f4ff;
+    --sky:#7ec8f7; --lav:#b9a7ff; --ink:#101018; --paper:#ffffff;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","Noto Sans JP",sans-serif;
+    color:var(--ink); background:var(--paper);
+  }
+  .mono{font-family:"Courier New",monospace;}
+
+  /* ===== パンくずリスト ===== */
+  .crumbs{
+    max-width:600px; margin:0 auto; padding:16px 20px 12px;
+    font-size:12px; letter-spacing:.14em; color:#55556a;
+    display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+  }
+  .crumbs a{color:var(--blue); text-decoration:none; font-weight:700;}
+  .crumbs a:hover{text-decoration:underline;}
+  .crumbs .sep{color:#b9c6e8;}
+  .crumbs .here{color:var(--ink); font-weight:700;}
+
+  /* ===== 本文 ===== */
+  main{max-width:600px; margin:0 auto; padding:44px 20px 30px;}
+  section{margin-bottom:52px;}
+  .label{color:var(--blue); font-size:12.5px; letter-spacing:.22em; font-weight:700;}
+  h2{color:var(--blue); font-size:clamp(26px,6.5vw,36px); font-weight:900; letter-spacing:.03em; margin:4px 0 16px; display:flex; align-items:baseline; gap:12px;}
+  h2 .small{font-size:12px; font-weight:400; letter-spacing:.2em; margin-left:auto;}
+  p,li{font-size:15px; line-height:2.05; color:#22222e;}
+  ul{list-style:none;}
+  li{border-bottom:1px dashed #c9d8ff; padding:3px 0;}
+  li::before{content:"▸ "; color:var(--blue); font-weight:700;}
+  .note{font-size:13px; color:#55556a;}
+  .fade{opacity:0; transform:translateY(26px); transition:opacity .8s ease, transform .8s ease;}
+  .fade.in{opacity:1; transform:translateY(0);}
+  .links{display:flex; flex-direction:column; align-items:flex-start; gap:12px; margin-top:6px;}
+  .btn{
+    display:block; text-align:center; text-decoration:none; font-weight:800; letter-spacing:.06em;
+    padding:15px 18px; border-radius:999px; color:#fff; background:var(--blue);
+    border:2px solid var(--blue); transition:all .18s ease;
+  }
+  .btn:hover{background:#fff; color:var(--blue); transform:translateY(-2px);}
+  .btn.fit{display:inline-block; width:auto; padding:15px 26px; align-self:flex-start;}
+  /* ===== ハンバーガーメニュー（SP幅のみ） ===== */
+  .burger{
+    display:none; position:fixed; top:12px; right:14px; z-index:60;
+    width:46px; height:46px; border-radius:50%; border:2px solid var(--blue);
+    background:#fff; cursor:pointer; padding:0;
+  }
+  .burger span{
+    display:block; width:20px; height:2px; background:var(--blue);
+    margin:5px auto; transition:transform .25s ease, opacity .2s ease;
+  }
+  .burger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+  .burger.open span:nth-child(2){opacity:0;}
+  .burger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+  .spmenu{
+    display:flex; position:fixed; inset:0; z-index:55; background:var(--blue);
+    flex-direction:column; align-items:center; justify-content:center; gap:34px;
+    clip-path:circle(0% at calc(100% - 37px) 35px);
+    visibility:hidden;
+    transition:clip-path .38s ease-in, visibility 0s .38s;
+  }
+  .spmenu.open{
+    clip-path:circle(142% at calc(100% - 37px) 35px);
+    visibility:visible;
+    transition:clip-path .7s cubic-bezier(.3,1.45,.5,1), visibility 0s;
+  }
+  .spmenu a{
+    color:#fff; text-decoration:none; font-weight:900; font-size:26px; letter-spacing:.08em;
+    opacity:0; transform:translateY(30px) scale(.85);
+  }
+  .spmenu.open a{
+    opacity:1; transform:translateY(0) scale(1);
+    transition:opacity .3s ease, transform .55s cubic-bezier(.3,1.8,.5,1);
+  }
+  .spmenu.open a:nth-child(2){transition-delay:.08s;}
+  .spmenu.open a:nth-child(3){transition-delay:.16s;}
+  .spmenu a .en{display:block; text-align:center; font-size:11px; font-weight:400; letter-spacing:.3em; margin-top:4px;}
+  @media (max-width:640px){ .burger{display:block;} }
+
+  footer{border-top:2px solid var(--blue); margin-top:10px; padding:22px 20px 40px; text-align:center; color:var(--blue);}
+  footer .copy{font-size:12px; color:#55556a; letter-spacing:.1em;}
+</style>
+</head>
+<body>
+
+<button class="burger" id="burger" aria-label="メニュー"><span></span><span></span><span></span></button>
+<nav class="spmenu" id="spmenu">
+  <a href="index.html">トップ<span class="en mono">TOP</span></a>
+  <a href="#about">わたしについて<span class="en mono">ABOUT ME</span></a>
+  <a href="char_info.html">マイキャラ紹介<span class="en mono">MY CHARACTER</span></a>
+</nav>
+
+<nav class="crumbs mono" aria-label="breadcrumb">
+  <a href="index.html">TOP</a>
+  <span class="sep">›</span>
+  <span class="here">INFORMATION</span>
+</nav>
+
+<main>
+  <section class="fade" id="about">
+    <p class="label">( about me )</p>
+    <h2>わたしについて <span class="small mono">profile</span></h2>
+    <p>読んでいただきありがとうございます！（必読ではございません）</p>
+    <p>20↑ 男性 都内<br>
+    履修済 筐体：プリマジ6章→アイプリ<br>
+    アニメ：アイプリ、プリマジ、プリパラ少し<br>
+    筐体メインでゆるくあそんでいます</p>
+  </section>
+
+  <section class="fade">
+    <p class="label">( my character )</p>
+    <h2>マイキャラ <span class="small mono">char_info</span></h2>
+    <p>マイキャラちゃんの紹介は、専用ページにまとめています。</p>
+    <div class="links">
+      <a class="btn fit" href="char_info.html">マイキャラ紹介ページへ →</a>
+    </div>
+  </section>
+
+  <section class="fade">
+    <p class="label">( like )</p>
+    <h2>すきなもの <span class="small mono">favorites</span></h2>
+    <ul>
+      <li>マイキャラちゃん</li>
+      <li>プリマジ：みゃむ、はにたん</li>
+      <li>アイプリ：プリうさムギちゃん、えるちゃん</li>
+      <li>プリキュア：キュアワンダフル、犬飼こむぎ</li>
+      <li>サンリオ：マイメロ、こぎみゅん、はなまるおばけ</li>
+      <li>ポケモン：マホイップ、ドレディア</li>
+    </ul>
+    <p class="note">同担拒否など特にありません</p>
+  </section>
+
+  <section class="fade">
+    <p class="label">( other )</p>
+    <h2>そのほか <span class="small mono">notes</span></h2>
+    <p>フォロリム・ブロ解等ご自由にしていただいて構いません。当方男性かつ成人済みですので、トラブル回避のため未成年の方や投稿内容を考慮してブロック・ブロ解等をさせていただく場合がございます。あらかじめご理解いただけますと幸いです。</p>
+    <p>ここまで読んでいただきありがとうございました！</p>
+  </section>
+</main>
+
+<footer>
+  <p class="copy">© qurage_waon / watagi-ch.github.io</p>
+</footer>
+
+<script>
+  (function(){
+    var burger = document.getElementById('burger');
+    var menu = document.getElementById('spmenu');
+    burger.addEventListener('click', function(){
+      burger.classList.toggle('open');
+      menu.classList.toggle('open');
+    });
+    menu.querySelectorAll('a').forEach(function(a){
+      a.addEventListener('click', function(){
+        burger.classList.remove('open');
+        menu.classList.remove('open');
+      });
+    });
+  })();
+
+  (function(){
+    var els = document.querySelectorAll('.fade');
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+      });
+    }, {threshold: 0.12});
+    els.forEach(function(el){ io.observe(el); });
+  })();
+</script>
+</body>
+</html>
