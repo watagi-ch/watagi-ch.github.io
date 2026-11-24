@@ -34,6 +34,35 @@
   .bsod a{color:#fff;}
   .void{height:52vh;}
   .fiction{font-size:11px; line-height:1.9; padding:0 16px 34px;}
+
+  /* ===== エラー演出 ===== */
+  .stage::after{
+    content:""; position:absolute; inset:0; z-index:40; pointer-events:none;
+    background:repeating-linear-gradient(0deg, rgba(0,0,0,.10) 0 1px, transparent 1px 3px);
+    mix-blend-mode:multiply; opacity:.5;
+  }
+  .bluezone{overflow:hidden;}
+  .bsod-wrap{position:relative;}
+  .bsod-layer{
+    position:absolute; inset:0; padding:30px 16px 6px; font-size:20px; line-height:1.9;
+    color:#fff; pointer-events:none; visibility:hidden; white-space:normal;
+  }
+  .noise-block{position:absolute; z-index:6; pointer-events:none;}
+  .ascii-noise{
+    position:absolute; z-index:5; color:#fff; font-family:"Courier New",monospace;
+    pointer-events:none; opacity:0; font-size:14px; letter-spacing:.2em;
+  }
+  .status-line{
+    font-family:"Courier New",monospace; font-size:12px; color:#fff;
+    padding:0 16px 26px; letter-spacing:.08em;
+  }
+  .status-line .cursor{display:inline-block; width:8px; height:14px; background:#fff; vertical-align:-2px; animation:blink 1s steps(1) infinite;}
+  @keyframes blink{0%,60%{opacity:1} 61%,100%{opacity:0}}
+  .jitter{animation:jitter .12s steps(2) 1;}
+  @keyframes jitter{0%{transform:translate(0,0)} 50%{transform:translate(-3px,1px)} 100%{transform:translate(2px,-1px)}}
+  @media (prefers-reduced-motion: reduce){
+    .status-line .cursor{animation:none;}
+  }
   .fade{opacity:0; transform:translateY(26px); transition:opacity .8s ease, transform .8s ease;}
   .fade.in{opacity:1; transform:translateY(0);}
 </style>
@@ -63,7 +92,8 @@
 
   <div class="bluezone">
     <img class="eyes" src="eyes.gif" alt="">
-    <div class="bsod">問題が発生したため、端末を再起動する必要が<br>あります。<br>エラー情報を収集しています。再起動できます。<br><br>10%完了　█□□□□□□□□□<br><br>この問題と可能な解決方法の詳細については、<br><a href="https://aipri.jp/mypage/entrance/">https://aipri.jp/mypage/entrance/</a><br>を参照してください。</div>
+    <div class="bsod-wrap"><div class="bsod" id="bsodMain">問題が発生したため、端末を再起動する必要が<br>あります。<br>エラー情報を収集しています。再起動できます。<br><br><span id="pct">10</span>%完了　<span id="blocks">█□□□□□□□□□</span><br><br>この問題と可能な解決方法の詳細については、<br><a href="https://aipri.jp/mypage/entrance/">https://aipri.jp/mypage/entrance/</a><br>を参照してください。</div></div>
+    <p class="status-line">&gt;&gt;&gt; signal lost // reconnecting<span class="cursor"></span></p>
     <div class="void"></div>
     <p class="fiction">当サイトに掲載されているストーリー、登場人物の名称、団体名、設定、エピソード等はすべてフィクションです。<br>実在する人物、団体、事件、地域等とは一切関係ありません。</p>
   </div>
@@ -78,6 +108,93 @@
       });
     }, {threshold: 0.05});
     els.forEach(function(el){ io.observe(el); });
+  })();
+</script>
+
+<script>
+  (function(){
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var zone = document.querySelector('.bluezone');
+    var main = document.getElementById('bsodMain');
+    var wrap = document.querySelector('.bsod-wrap');
+
+    /* BSODテキストのスライスグリッチ（複製レイヤーを帯状にずらす） */
+    var layers = [];
+    for (var i = 0; i < 2; i++) {
+      var l = document.createElement('div');
+      l.className = 'bsod-layer';
+      l.innerHTML = main.innerHTML;
+      wrap.appendChild(l);
+      layers.push(l);
+    }
+    function sliceBurst(){
+      layers.forEach(function(l){
+        var top = Math.random() * 70;
+        var h = 4 + Math.random() * 14;
+        l.style.clipPath = 'inset(' + top + '% 0 ' + (100 - top - h) + '% 0)';
+        l.style.transform = 'translateX(' + (Math.random() * 26 - 13) + 'px)';
+        l.style.visibility = 'visible';
+      });
+      setTimeout(function(){
+        layers.forEach(function(l){ l.style.visibility = 'hidden'; });
+      }, 120 + Math.random() * 120);
+      setTimeout(sliceBurst, 1400 + Math.random() * 2600);
+    }
+    setTimeout(sliceBurst, 1200);
+
+    /* ランダムな四角とASCIIノイズ */
+    var chars = ['#','+','=','@',':','^','/','-','///','^^^','+++'];
+    function spawn(){
+      if (!zone.isConnected) return;
+      var r = zone.getBoundingClientRect();
+      if (Math.random() < 0.6) {
+        var b = document.createElement('div');
+        b.className = 'noise-block';
+        b.style.left = (Math.random() * 92) + '%';
+        b.style.top = (Math.random() * 96) + '%';
+        b.style.width = (20 + Math.random() * 90) + 'px';
+        b.style.height = (6 + Math.random() * 22) + 'px';
+        b.style.background = Math.random() < 0.5 ? '#ffffff' : '#0000bb';
+        zone.appendChild(b);
+        setTimeout(function(){ b.remove(); }, 90 + Math.random() * 160);
+      } else {
+        var a = document.createElement('span');
+        a.className = 'ascii-noise';
+        a.textContent = chars[Math.floor(Math.random() * chars.length)];
+        a.style.left = (Math.random() * 90) + '%';
+        a.style.top = (Math.random() * 96) + '%';
+        a.style.opacity = '0.9';
+        zone.appendChild(a);
+        setTimeout(function(){ a.remove(); }, 300 + Math.random() * 500);
+      }
+      setTimeout(spawn, 350 + Math.random() * 900);
+    }
+    setTimeout(spawn, 800);
+
+    /* たまに画面全体がカクッとずれる */
+    var stage = document.querySelector('.stage');
+    function jitter(){
+      stage.classList.remove('jitter');
+      void stage.offsetWidth;
+      stage.classList.add('jitter');
+      setTimeout(jitter, 2600 + Math.random() * 4200);
+    }
+    setTimeout(jitter, 3000);
+
+    /* 進捗%が進んでは戻る */
+    var pct = document.getElementById('pct');
+    var blocks = document.getElementById('blocks');
+    var val = 10;
+    function tick(){
+      if (Math.random() < 0.3) { val = Math.max(0, val - Math.floor(Math.random() * 9)); }
+      else { val = Math.min(97, val + Math.floor(Math.random() * 7)); }
+      pct.textContent = val;
+      var f = Math.round(val / 10), s = '';
+      for (var i = 0; i < 10; i++) { s += (i < f ? '█' : '□'); }
+      blocks.textContent = s;
+      setTimeout(tick, 700 + Math.random() * 1600);
+    }
+    setTimeout(tick, 1000);
   })();
 </script>
 </body>
