@@ -21,7 +21,7 @@
   *{box-sizing:border-box; margin:0; padding:0;}
   body{background:#0000ff; font-family:"Noto Sans JP","Hiragino Kaku Gothic ProN",sans-serif;}
   .stage{max-width:500px; margin:0 auto; position:relative;}
-  .hero-img{position:relative; aspect-ratio:1170 / 2004; background:#0000ff; overflow:hidden;}
+  .hero-img{position:sticky; top:min(0px, calc(100svh - min(171.28vw, 856px))); z-index:1; aspect-ratio:1170 / 2004; background:#0000ff; overflow:hidden;}
   .hero-img canvas{position:absolute; inset:0; width:100%; height:100%; display:block;}
   .hero-img img.layer{position:absolute; inset:0; width:100%; height:100%; display:block;}
 
@@ -29,14 +29,16 @@
   .det{position:absolute; z-index:4; border:1px solid rgba(255,255,255,.92); box-sizing:border-box; pointer-events:none; opacity:0; animation:detIn .18s steps(2) forwards;}
   .det span{position:absolute; top:2px; right:5px; font-family:ui-monospace, Menlo, monospace; font-size:clamp(7px, 2vw, 10.5px); color:#fff; white-space:nowrap; text-shadow:0 0 3px rgba(0,0,120,.8);}
   @keyframes detIn{0%{opacity:0; transform:scale(1.04);}60%{opacity:1;}100%{opacity:1; transform:scale(1);}}
+
+  .det.eye span{left:calc(100% + 6px); right:auto; top:50%; transform:translateY(-50%);}
   .secret{position:absolute; inset:0; z-index:5; overflow:hidden; color:transparent; font-size:16px; line-height:1.6; word-break:break-all; user-select:text;}
   .secret::selection{background:#ffb7d5; color:#f00;}
-  .sheet{background:#fff; color:#0000ff; padding:26px 16px 30px;}
+  .sheet{background:#fff; color:#0000ff; padding:26px 16px 30px; position:relative; z-index:2; box-shadow:0 -14px 28px rgba(0,0,90,.28);}
   h1{font-size:30px; font-weight:700;}
   .info-sub{text-align:right; font-size:14px; margin-top:-22px; margin-bottom:18px;}
   .body-text{font-size:16px; line-height:2;}
   .ch5{
-    position:relative; color:#0000ff; padding:26px 16px 30px; overflow:hidden;
+    position:relative; z-index:2; color:#0000ff; padding:26px 16px 30px; overflow:hidden;
     background:linear-gradient(to bottom, #ffffff 0, #ffffff 150px, #0000ff 150px, #0000ff 100%);
   }
   .ch5 .body-text{position:relative; z-index:1;}
@@ -47,7 +49,7 @@
   .logs img:nth-child(2){left:-19%; top:274px;}
   .logs img:nth-child(3){left:27.8%; top:335px;}
   .logs img:nth-child(4){left:3.8%; top:592px;}
-  .bluezone{color:#fff; position:relative;}
+  .bluezone{color:#fff; position:relative; z-index:2; background:#0000ff;}
   .bluezone img.eyes{display:block; width:100%; height:auto; margin-top:26px;}
   .bsod{font-size:20px; line-height:1.9; padding:30px 16px 6px;}
   .bsod a{color:#fff;}
@@ -77,8 +79,6 @@
   }
   .status-line .cursor{display:inline-block; width:8px; height:14px; background:#fff; vertical-align:-2px; animation:blink 1s steps(1) infinite;}
   @keyframes blink{0%,60%{opacity:1} 61%,100%{opacity:0}}
-  .jitter{animation:jitter .12s steps(2) 1;}
-  @keyframes jitter{0%{transform:translate(0,0)} 50%{transform:translate(-3px,1px)} 100%{transform:translate(2px,-1px)}}
   @media (prefers-reduced-motion: reduce){
     .status-line .cursor{animation:none;}
   }
@@ -99,7 +99,7 @@
     <div class="det" style="left:45.7%;top:3.9%;width:31.2%;height:10.4%;animation-delay:0.13s"><span data-name="fluffy-cat-blue-accessory">fluffy-cat-blue-accessory</span></div>
     <div class="det" style="left:62.5%;top:6.7%;width:28.5%;height:12.5%;animation-delay:0.26s"><span data-name="fluffy-cat-blue-accessory">fluffy-cat-blue-accessory</span></div>
     <div class="det" style="left:36.1%;top:21.1%;width:35.9%;height:18.4%;animation-delay:0.39s"><span data-name="hitamuki-face">hitamuki-face</span></div>
-    <div class="det" style="left:57.4%;top:27.0%;width:13.8%;height:6.1%;animation-delay:0.52s"><span data-name="priusa-purple-eye">priusa-purple-eye</span></div>
+    <div class="det eye" style="left:57.4%;top:27.0%;width:13.8%;height:6.1%;animation-delay:0.52s"><span data-name="priusa-purple-eye">priusa-purple-eye</span></div>
     <div class="det" style="left:2.8%;top:37.6%;width:24.4%;height:12.9%;animation-delay:0.65s"><span data-name="fluffy-cat-blue-tops">fluffy-cat-blue-tops</span></div>
     <div class="det" style="left:20.6%;top:40.0%;width:46.3%;height:26.7%;animation-delay:0.78s"><span data-name="fluffy-cat-blue-tops">fluffy-cat-blue-tops</span></div>
     <div class="det" style="left:66.1%;top:44.3%;width:24.4%;height:14.1%;animation-delay:0.91s"><span data-name="fluffy-cat-blue-tops">fluffy-cat-blue-tops</span></div>
@@ -148,7 +148,7 @@
 <script>
   (function(){
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    var zone = document.querySelector('.bluezone');
+    var zone = document.querySelector('.stage');
     var main = document.getElementById('bsodMain');
     var wrap = document.querySelector('.bsod-wrap');
 
@@ -201,19 +201,9 @@
         zone.appendChild(a);
         setTimeout(function(){ a.remove(); }, 300 + Math.random() * 500);
       }
-      setTimeout(spawn, 350 + Math.random() * 900);
+      setTimeout(spawn, 260 + Math.random() * 650);
     }
     setTimeout(spawn, 800);
-
-    /* たまに画面全体がカクッとずれる */
-    var stage = document.querySelector('.stage');
-    function jitter(){
-      stage.classList.remove('jitter');
-      void stage.offsetWidth;
-      stage.classList.add('jitter');
-      setTimeout(jitter, 2600 + Math.random() * 4200);
-    }
-    setTimeout(jitter, 3000);
 
     /* 進捗%が進んでは戻る */
     var pct = document.getElementById('pct');
@@ -248,7 +238,11 @@
     })(el);
     var originals = nodes.map(function(n){ return n.nodeValue; });
     var total = originals.reduce(function(a, t){ return a + t.length; }, 0);
-    var CHARS = 'アイウエオカキクケコサシスセソタチツテトナニヌネノ0123456789ABCDEF#@$%&*+=<>!?';
+    /* 高さを固定して、書き換え中に下の要素がガクガク動かないようにする */
+    function lockHeight(){ el.style.minHeight = el.offsetHeight + 'px'; }
+    lockHeight();
+    window.addEventListener('load', lockHeight);
+    var CHARS = 'アイウエオカキクケコサシスセソタチツテトナニヌネノ０１２３４５６７８９ＡＢＣＤＥＦ＃＠＄％＆＊＋＝＜＞！？';
     function rand(){ return CHARS[Math.floor(Math.random() * CHARS.length)]; }
 
     function render(frontier){
@@ -279,12 +273,12 @@
         if (p < 1) requestAnimationFrame(step);
         else {
           setTimeout(restore, 350);
-          setTimeout(run, 8000 + Math.random() * 9000);
+          setTimeout(run, 16000 + Math.random() * 18000);
         }
       }
       requestAnimationFrame(step);
     }
-    setTimeout(run, 5000 + Math.random() * 4000);
+    setTimeout(run, 10000 + Math.random() * 8000);
   })();
 </script>
 
@@ -393,6 +387,10 @@
     }
     var boxes = Array.prototype.slice.call(document.querySelectorAll('.det'));
     boxes.forEach(function(box){
+      box.addEventListener('animationend', function(){
+        box.style.animation = 'none';
+        box.style.opacity = 1;
+      });
       var span = box.querySelector('span');
       var name = span.getAttribute('data-name');
       function conf(){ return 84 + Math.floor(Math.random() * 16); }
@@ -407,35 +405,45 @@
       /* ランダムに一瞬途切れる */
       (function dropout(){
         setTimeout(function(){
-          box.style.opacity = 0;
-          setTimeout(function(){ box.style.opacity = 1; }, 60 + Math.random() * 220);
+          if (!box.classList.contains('lost')) {
+            box.style.opacity = 0;
+            setTimeout(function(){ if (!box.classList.contains('lost')) box.style.opacity = 1; }, 60 + Math.random() * 220);
+          }
           dropout();
         }, 1800 + Math.random() * 5200);
       })();
-      /* たまに認識ロスト→再認識 */
+      /* たまに認識ロスト→枠ごと消えて、しばらくして再認識 */
       (function lose(){
         setTimeout(function(){
           box.classList.add('lost');
-          span.textContent = name + ' --%';
-          var blinks = 0;
-          var iv = setInterval(function(){
-            box.style.opacity = (blinks % 2) ? 1 : 0.25;
-            if (++blinks > 5) {
-              clearInterval(iv);
-              box.style.opacity = 1;
-              box.classList.remove('lost');
-              span.textContent = name + ' ' + conf() + '%';
-            }
-          }, 90);
+          box.style.opacity = 0;
+          setTimeout(function(){
+            box.classList.remove('lost');
+            box.style.opacity = 1;
+            span.textContent = name + ' ' + conf() + '%';
+          }, 700 + Math.random() * 1300);
           lose();
         }, 9000 + Math.random() * 14000);
       })();
-      /* 微妙なブレ */
+      /* 微妙なブレ＋たまに少しだけ位置がずれる */
+      var jx = 0, jy = 0, dx = 0, dy = 0;
+      function applyPos(){ box.style.transform = 'translate(' + (jx + dx) + 'px,' + (jy + dy) + 'px)'; }
       (function jitter(){
         setTimeout(function(){
-          box.style.transform = 'translate(' + (Math.random() * 3 - 1.5) + 'px,' + (Math.random() * 3 - 1.5) + 'px)';
+          jx = Math.random() * 3 - 1.5;
+          jy = Math.random() * 3 - 1.5;
+          applyPos();
           jitter();
         }, 120 + Math.random() * 300);
+      })();
+      (function drift(){
+        setTimeout(function(){
+          dx = Math.round(Math.random() * 18 - 9);
+          dy = Math.round(Math.random() * 14 - 7);
+          applyPos();
+          setTimeout(function(){ dx = 0; dy = 0; applyPos(); }, 1500 + Math.random() * 3000);
+          drift();
+        }, 6000 + Math.random() * 9000);
       })();
     });
   })();
