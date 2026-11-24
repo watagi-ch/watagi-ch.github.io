@@ -14,38 +14,83 @@
 <meta name="twitter:title" content="いんふぉめ〜しょん">
 <meta name="twitter:description" content="ゎ（@qurage_waon）のプロフィールページ">
 <meta name="twitter:image" content="https://watagi-ch.github.io/ogp.jpg">
+<link rel="preload" as="image" href="index_char.png">
 <link rel="icon" type="image/png" sizes="512x512" href="favicon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <style>
-  *{box-sizing:border-box; margin:0; padding:0;}
-  body{background:#ffffff; font-family:"Noto Sans JP","Hiragino Kaku Gothic ProN",sans-serif;}
+  *{margin:0; padding:0; box-sizing:border-box;}
+  body{background:#ffffff; font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","Noto Sans JP",sans-serif;}
   .stage{position:relative; max-width:500px; margin:0 auto; overflow:hidden;}
-  .stage img.key{display:block; width:100%; height:auto;}
-  .secret{
-    position:absolute; top:8px; left:0; right:0; text-align:center;
-    color:transparent; font-size:18px; line-height:1.5; word-break:break-all;
-    user-select:text; padding:0 8px; max-height:100%; overflow:hidden;
-  }
-  .secret::selection{background:#ffb7d5; color:#f00;}
-  .pbtn{position:absolute; left:13.8%; width:73.4%; display:block; transition:transform .15s ease, opacity .15s ease;}
-  .pbtn img{display:block; width:100%; height:auto;}
-  .pbtn:hover{transform:scale(1.03); opacity:.92;}
-  .pbtn.char{top:42%;}
-  .pbtn.lit{top:50.6%;}
-
+  .hero{position:relative; aspect-ratio:1170 / 2532; background:#0000ff; overflow:hidden;}
+  .hero canvas.grid{position:absolute; inset:0; width:100%; height:100%; display:block;}
+  .thorn-wrap{position:absolute; left:-52%; top:-1%; width:150%; aspect-ratio:200 / 290; pointer-events:none;}
+  .thorn-wrap canvas{width:100%; height:100%; display:block; image-rendering:pixelated;}
+  .bob{position:absolute; inset:0;}
+  .hero img.layer{position:absolute; inset:0; width:100%; height:100%; display:block;}
+  /* リアルタイム認識風ボックス */
+  .det{position:absolute; z-index:4; border:1px solid rgba(255,255,255,.92); box-sizing:border-box; pointer-events:none; opacity:0; animation:detIn .18s steps(2) forwards;}
+  .det span{position:absolute; top:2px; right:5px; font-family:ui-monospace, Menlo, monospace; font-size:clamp(7px, 2vw, 10.5px); color:#fff; white-space:nowrap; text-shadow:0 0 3px rgba(0,0,120,.8);}
+  .det.eye span{left:calc(100% + 6px); right:auto; top:50%; transform:translateY(-50%);}
+  @keyframes detIn{0%{opacity:0; transform:scale(1.04);}60%{opacity:1;}100%{opacity:1; transform:scale(1);}}
+  .btn-img{position:absolute; left:13.8%; width:73.4%; z-index:4; display:block; filter:drop-shadow(0 4px 10px rgba(0,0,120,.35));}
+  .btn-img img{display:block; width:100%; height:auto;}
+  .btn-img:hover{transform:scale(1.03);}
+  .btn-char{top:42%;}
+  .btn-about{top:50.6%;}
+  .secret{position:absolute; inset:0; z-index:9; max-height:100%; overflow:hidden; opacity:0; font-size:18px; line-height:1.5; text-align:center; user-select:none; pointer-events:none;}
   /* 画像保存ガード（抑止用） */
   img{-webkit-user-drag:none; -webkit-touch-callout:none; user-select:none; -webkit-user-select:none;}
+
+  /* ロード画面: ステータスマーク風 */
+  #loader{position:fixed; inset:0; z-index:999; background:#0000ff; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; transition:opacity .45s ease;}
+  #loader.hide{opacity:0; pointer-events:none;}
+  #loader .mark{width:56px; height:56px;}
+  #loader .ring{fill:rgba(34,197,94,0); stroke:#fff; stroke-width:2; stroke-dasharray:4.3 3.55; transition:stroke .3s, fill .3s;}
+  #loader.running .ring{stroke-dasharray:42.7 20.1; animation:markSpin 1.1s linear infinite; transform-origin:50% 50%;}
+  #loader .check{fill:none; stroke:#22c55e; stroke-width:2.4; stroke-linecap:round; stroke-linejoin:round; stroke-dasharray:16; stroke-dashoffset:16;}
+  #loader.done .ring{stroke-dasharray:63 0; stroke:#22c55e; fill:rgba(34,197,94,.14); animation:none;}
+  #loader.done .check{transition:stroke-dashoffset .24s ease .02s; stroke-dashoffset:0;}
+  @keyframes markSpin{to{transform:rotate(360deg);}}
+  #loader .load-label{position:relative; color:#fff; font-family:ui-monospace, Menlo, monospace; font-size:13px; letter-spacing:.35em; text-indent:.35em;}
+  #loader .load-label::after{content:""; position:absolute; left:-4px; right:-4px; top:50%; height:1.5px; background:#fff; transform:scaleX(0); transform-origin:left;}
+  #loader.done .load-label{opacity:.55; transition:opacity .3s;}
+  #loader.done .load-label::after{transition:transform .3s ease .08s; transform:scaleX(1);}
+  #loader .load-sub{color:rgba(255,255,255,.65); font-size:11px; letter-spacing:.2em;}
+
+  #loadPct{color:#fff; font-family:ui-monospace, Menlo, monospace; font-size:12px; letter-spacing:.25em; text-indent:.25em; margin-top:-6px;}
 </style>
 </head>
 <body>
-  <div class="stage">
-    <img class="key" src="top_key.jpeg" alt="いんふぉめ〜しょん">
+<div id="loader" class="running" aria-hidden="true">
+  <svg class="mark" viewBox="0 0 24 24">
+    <circle class="ring" cx="12" cy="12" r="10"></circle>
+    <path class="check" d="M7 12.5 L10.4 15.9 L17 8.6"></path>
+  </svg>
+  <div id="loadPct">0%</div>
+</div>
+<div class="stage">
+  <div class="hero" id="hero">
+    <canvas class="grid" id="gridCanvas" width="585" height="1266"></canvas>
+    <div class="thorn-wrap"><canvas id="thornCanvas" width="200" height="290"></canvas></div>
+    <div class="bob">
+      <img class="layer" src="index_char.png" alt="マイキャラ">
+      <div class="det" style="left:15.0%;top:3.5%;width:21.0%;height:7.5%;animation-delay:0.00s"><span data-name="fluffy-cat-blue-accessory">fluffy-cat-blue-accessory</span></div>
+      <div class="det" style="left:32.0%;top:5.5%;width:23.0%;height:10.0%;animation-delay:0.13s"><span data-name="fluffy-cat-blue-accessory">fluffy-cat-blue-accessory</span></div>
+      <div class="det" style="left:4.5%;top:17.5%;width:35.0%;height:13.0%;animation-delay:0.26s"><span data-name="hitamuki-face">hitamuki-face</span></div>
+      <div class="det eye" style="left:28.0%;top:21.5%;width:14.0%;height:5.5%;animation-delay:0.39s"><span data-name="priusa-purple-eye">priusa-purple-eye</span></div>
+      <div class="det" style="left:5.0%;top:32.5%;width:32.0%;height:7.5%;animation-delay:0.52s"><span data-name="fluffy-cat-blue-tops">fluffy-cat-blue-tops</span></div>
+      <div class="det" style="left:32.0%;top:35.5%;width:28.0%;height:11.5%;animation-delay:0.65s"><span data-name="fluffy-cat-blue-tops">fluffy-cat-blue-tops</span></div>
+      <div class="det" style="left:5.0%;top:53.5%;width:61.0%;height:10.5%;animation-delay:0.78s"><span data-name="fluffy-cat-blue-bottoms">fluffy-cat-blue-bottoms</span></div>
+      <div class="det" style="left:32.0%;top:56.5%;width:47.0%;height:34.0%;animation-delay:0.91s"><span data-name="fluffy-cat-blue-bottoms">fluffy-cat-blue-bottoms</span></div>
+    </div>
+      <div class="info-sub">information</div>
+    </div>
+    <a class="btn-img btn-char" href="char_info.html"><img src="btn_char.png" alt="マイキャラ紹介"></a>
+    <a class="btn-img btn-about" href="about.html"><img src="btn_about.png" alt="中の人について"></a>
     <div class="secret">すぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせ</div>
-    <a class="pbtn char" href="char_info.html"><img src="btn_char.png" alt="マイキャラ紹介"></a>
-    <a class="pbtn lit" href="about.html"><img src="btn_about.png" alt="中の人について"></a>
   </div>
-
+</div>
 <script>
   document.addEventListener('contextmenu', function(e){
     if (e.target && e.target.tagName === 'IMG') e.preventDefault();
@@ -53,6 +98,294 @@
   document.addEventListener('dragstart', function(e){
     if (e.target && e.target.tagName === 'IMG') e.preventDefault();
   });
+</script>
+<script>
+  (function(){
+    var cv = document.getElementById('gridCanvas');
+    if (!cv) return;
+    var ctx = cv.getContext('2d');
+    var W = cv.width, H = cv.height;
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var scrollPhase = 0, lastScroll = window.scrollY;
+
+    var ripples = [];   /* {x, y, start} 触った場所からの波紋 */
+    var nowSec = 0;
+    function warp(x, y, t){
+      var dx = Math.sin(y * 0.014 + t * 1.25) * 13 + Math.sin(y * 0.05 - t * 0.8 + x * 0.004) * 5 + Math.sin((x + y) * 0.006 + t * 0.6) * 6;
+      var dy = Math.cos(x * 0.012 + t * 1.05) * 13 + Math.cos(x * 0.045 + t * 0.7 - y * 0.004) * 5 + Math.cos((x - y) * 0.005 - t * 0.5) * 6;
+      for (var i = 0; i < ripples.length; i++) {
+        var r = ripples[i];
+        var age = nowSec - r.start;
+        if (age < 0 || age > 2.4) continue;
+        var ddx = x - r.x, ddy = y - r.y;
+        var dist = Math.sqrt(ddx * ddx + ddy * ddy) || 1;
+        var front = age * 260;                                   /* 波紋の広がる速さ */
+        var band = Math.exp(-Math.pow(dist - front, 2) / 5200);  /* 輪の部分だけ揺らす */
+        var amp = Math.sin(dist * 0.11 - age * 13) * 15 * band * Math.exp(-age * 1.15);
+        dx += (ddx / dist) * amp;
+        dy += (ddy / dist) * amp;
+      }
+      return [x + dx, y + dy];
+    }
+    /* 触った・クリックした場所に波紋 */
+    var hero = cv.parentElement;
+    var lastRip = 0, lastX = -999, lastY = -999;
+    function addRipple(e){
+      var rect = cv.getBoundingClientRect();
+      var x = (e.clientX - rect.left) * (W / rect.width);
+      var y = (e.clientY - rect.top) * (H / rect.height);
+      ripples.push({x: x, y: y, start: nowSec});
+      if (ripples.length > 7) ripples.shift();
+      lastRip = nowSec; lastX = x; lastY = y;
+    }
+    hero.addEventListener('pointerdown', addRipple);
+    hero.addEventListener('pointermove', function(e){
+      if (nowSec - lastRip < 0.14) return;
+      var rect = cv.getBoundingClientRect();
+      var x = (e.clientX - rect.left) * (W / rect.width);
+      var y = (e.clientY - rect.top) * (H / rect.height);
+      if (Math.abs(x - lastX) + Math.abs(y - lastY) < 46) return;
+      addRipple(e);
+    });
+    function draw(t){
+      ctx.fillStyle = '#0000ff';
+      ctx.fillRect(0, 0, W, H);
+      ctx.strokeStyle = 'rgba(130,185,255,0.55)';
+      ctx.lineWidth = 1;
+      var gap = 42, x, y, p;
+      for (x = -gap; x <= W + gap; x += gap) {
+        ctx.beginPath();
+        for (y = -20; y <= H + 20; y += 12) {
+          p = warp(x, y, t);
+          if (y === -20) ctx.moveTo(p[0], p[1]); else ctx.lineTo(p[0], p[1]);
+        }
+        ctx.stroke();
+      }
+      for (y = -gap; y <= H + gap; y += gap) {
+        ctx.beginPath();
+        for (x = -20; x <= W + 20; x += 12) {
+          p = warp(x, y, t);
+          if (x === -20) ctx.moveTo(p[0], p[1]); else ctx.lineTo(p[0], p[1]);
+        }
+        ctx.stroke();
+      }
+    }
+    if (reduce) { draw(0); return; }
+    var running = true;
+    new IntersectionObserver(function(es){
+      es.forEach(function(e){ running = e.isIntersecting; });
+    }).observe(cv);
+    (function loop(ts){
+      nowSec = (ts || 0) * 0.001;
+      var sc = window.scrollY;
+      scrollPhase += (sc - lastScroll) * 0.0035;   /* スクロールでも波が進む */
+      lastScroll = sc;
+      ripples = ripples.filter(function(r){ return nowSec - r.start < 2.4; });
+      if (running) draw(nowSec + scrollPhase);
+      requestAnimationFrame(loop);
+    })(0);
+  })();
+</script>
+<script>
+  (function(){
+    var cv = document.getElementById('thornCanvas');
+    if (!cv) return;
+    var ctx = cv.getContext('2d');
+    var W = cv.width, H = cv.height;
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var CX = 100, CY = 92, CORE = 17;
+
+    /* 棘の種: 角度・長さ・太さ・うねりの位相 */
+    var spikes = [];
+    var N = 30;
+    for (var i = 0; i < N; i++) {
+      var a = (i / N) * Math.PI * 2 + (Math.random() - 0.5) * 0.15;
+      var downBias = Math.max(0, Math.sin(a)) * 32;   /* 下向きの棘は長め */
+      spikes.push({
+        a: a,
+        len: 22 + Math.random() * 56 + downBias,
+        w: 0.028 + Math.random() * 0.045,
+        ph: Math.random() * Math.PI * 2,
+        sp: 0.4 + Math.random() * 0.9,
+        twitch: 0
+      });
+    }
+    var frags = [];
+    for (var j = 0; j < 6; j++) {
+      frags.push({x: CX + (Math.random() - 0.5) * 120, y: CY + (Math.random() - 0.5) * 150, s: 1 + Math.random() * 2.4, ph: Math.random() * 6});
+    }
+
+    function radiusAt(theta, t){
+      var r = CORE * (0.88 + 0.16 * Math.sin(theta * 3 + t * 0.7));
+      for (var i = 0; i < spikes.length; i++) {
+        var s = spikes[i];
+        var d = theta - s.a;
+        while (d > Math.PI) d -= Math.PI * 2;
+        while (d < -Math.PI) d += Math.PI * 2;
+        var pulse = 1 + 0.16 * Math.sin(t * s.sp * 2 + s.ph) + s.twitch;
+        r += s.len * pulse * Math.pow(Math.exp(-(d * d) / (2 * s.w * s.w)), 1.7);
+      }
+      return r;
+    }
+
+    function draw(t){
+      ctx.clearRect(0, 0, W, H);
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      var steps = 130;
+      for (var i = 0; i <= steps; i++) {
+        var th = (i / steps) * Math.PI * 2;
+        var r = radiusAt(th, t);
+        /* 座標を整数に丸めてドット絵っぽい段々に */
+        var x = Math.round(CX + Math.cos(th) * r);
+        var y = Math.round(CY + Math.sin(th) * r);
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+      ctx.fill();
+      /* 周りの小さな破片 */
+      frags.forEach(function(f){
+        var s = f.s * (0.8 + 0.3 * Math.sin(t * 1.7 + f.ph));
+        ctx.fillRect(Math.round(f.x + Math.sin(t + f.ph) * 1.5), Math.round(f.y + Math.cos(t * 0.8 + f.ph) * 1.5), Math.max(1, Math.round(s)), Math.max(1, Math.round(s)));
+      });
+    }
+
+    if (reduce) { draw(1); return; }
+    var running = true;
+    new IntersectionObserver(function(es){
+      es.forEach(function(e){ running = e.isIntersecting; });
+    }).observe(cv);
+
+    /* たまに1本の棘がビッと伸びる */
+    setInterval(function(){
+      var s = spikes[Math.floor(Math.random() * spikes.length)];
+      s.twitch = 0.35 + Math.random() * 0.4;
+      setTimeout(function(){ s.twitch = 0; }, 160 + Math.random() * 260);
+    }, 700);
+
+    var lastDraw = 0;
+    (function loop(ts){
+      var t = (ts || 0) * 0.001;
+      if (running && t - lastDraw > 0.085) { draw(t); lastDraw = t; }  /* コマ落としでドット感 */
+      requestAnimationFrame(loop);
+    })(0);
+  })();
+</script>
+<script>
+  (function(){
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      document.querySelectorAll('.det').forEach(function(b){ b.style.opacity = 1; b.style.animation = 'none'; });
+      return;
+    }
+    var boxes = Array.prototype.slice.call(document.querySelectorAll('.det'));
+    boxes.forEach(function(box){
+      box.addEventListener('animationend', function(){
+        box.style.animation = 'none';
+        box.style.opacity = 1;
+      });
+      var span = box.querySelector('span');
+      var name = span.getAttribute('data-name');
+      function conf(){ return 84 + Math.floor(Math.random() * 16); }
+      span.textContent = name + ' ' + conf() + '%';
+      /* 確信度の数値をちょこちょこ更新 */
+      (function tickConf(){
+        setTimeout(function(){
+          if (!box.classList.contains('lost')) span.textContent = name + ' ' + conf() + '%';
+          tickConf();
+        }, 700 + Math.random() * 1600);
+      })();
+      /* ランダムに一瞬途切れる */
+      (function dropout(){
+        setTimeout(function(){
+          if (!box.classList.contains('lost')) {
+            box.style.opacity = 0;
+            setTimeout(function(){ if (!box.classList.contains('lost')) box.style.opacity = 1; }, 60 + Math.random() * 220);
+          }
+          dropout();
+        }, 1800 + Math.random() * 5200);
+      })();
+      /* たまに認識ロスト→枠ごと消えて、しばらくして再認識 */
+      (function lose(){
+        setTimeout(function(){
+          box.classList.add('lost');
+          box.style.opacity = 0;
+          setTimeout(function(){
+            box.classList.remove('lost');
+            box.style.opacity = 1;
+            span.textContent = name + ' ' + conf() + '%';
+          }, 700 + Math.random() * 1300);
+          lose();
+        }, 9000 + Math.random() * 14000);
+      })();
+      /* 微妙なブレ＋たまに少しだけ位置がずれる */
+      var jx = 0, jy = 0, dx = 0, dy = 0;
+      function applyPos(){ box.style.transform = 'translate(' + (jx + dx) + 'px,' + (jy + dy) + 'px)'; }
+      (function jitter(){
+        setTimeout(function(){
+          jx = Math.random() * 3 - 1.5;
+          jy = Math.random() * 3 - 1.5;
+          applyPos();
+          jitter();
+        }, 120 + Math.random() * 300);
+      })();
+      (function drift(){
+        setTimeout(function(){
+          dx = Math.round(Math.random() * 18 - 9);
+          dy = Math.round(Math.random() * 14 - 7);
+          applyPos();
+          setTimeout(function(){ dx = 0; dy = 0; applyPos(); }, 1500 + Math.random() * 3000);
+          drift();
+        }, 6000 + Math.random() * 9000);
+      })();
+    });
+  })();
+</script>
+<script>
+  (function(){
+    var loader = document.getElementById('loader');
+    if (!loader) return;
+    var started = Date.now();
+    var finished = false;
+
+    /* 画像のダウンロードだけでなく「デコード（表示準備）」まで待つ */
+    var imgs = Array.prototype.slice.call(document.querySelectorAll('.hero img.layer'));
+    var decoded = Promise.all(imgs.map(function(im){
+      if (im.decode) return im.decode().catch(function(){});
+      return im.complete ? Promise.resolve() : new Promise(function(res){
+        im.addEventListener('load', res); im.addEventListener('error', res);
+      });
+    }));
+    var timeout = new Promise(function(res){ setTimeout(res, 3500); });
+
+    var pctEl = document.getElementById('loadPct');
+    var prog = 0, ready = false;
+    var ticker = setInterval(function(){
+      if (!ready && prog < 92) prog += (92 - prog) * 0.055 + Math.random() * 1.1;
+      else if (ready && prog < 100) prog += (100 - prog) * 0.4 + 1.5;
+      if (prog > 100) prog = 100;
+      if (pctEl) pctEl.textContent = Math.floor(prog) + '%';
+      if (ready && prog >= 100) clearInterval(ticker);
+    }, 90);
+    Promise.race([decoded, timeout]).then(function(){
+      ready = true;
+      /* 2フレーム待って、実際に画面に描かれてからローダーを消す */
+      requestAnimationFrame(function(){
+        requestAnimationFrame(function(){
+          var wait = Math.max(0, 650 - (Date.now() - started));
+          setTimeout(function(){
+            if (finished) return;
+            finished = true;
+            loader.classList.remove('running');
+            loader.classList.add('done');
+            setTimeout(function(){
+              loader.classList.add('hide');
+              setTimeout(function(){ loader.remove(); }, 500);
+            }, 480);
+          }, wait);
+        });
+      });
+    });
+  })();
 </script>
 </body>
 </html>
