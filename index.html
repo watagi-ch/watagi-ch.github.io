@@ -7,12 +7,12 @@
 <style>
   *{box-sizing:border-box; margin:0; padding:0;}
   body{background:#0000ff; font-family:"Noto Sans JP","Hiragino Kaku Gothic ProN",sans-serif;}
-  .stage{position:relative; max-width:500px; margin:0 auto;}
+  .stage{position:relative; max-width:500px; margin:0 auto; overflow:hidden;}
   .stage img.key{display:block; width:100%; height:auto;}
   .secret{
     position:absolute; top:8px; left:0; right:0; text-align:center;
     color:transparent; font-size:18px; line-height:1.5; word-break:break-all;
-    user-select:text; padding:0 8px;
+    user-select:text; padding:0 8px; max-height:100%; overflow:hidden;
   }
   .secret::selection{background:#ffb7d5; color:#f00;}
   .pbtn{position:absolute; left:13.8%; width:73.4%; display:block; transition:transform .15s ease, opacity .15s ease;}
