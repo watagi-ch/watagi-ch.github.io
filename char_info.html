@@ -24,6 +24,8 @@
   .stage{max-width:500px; margin:0 auto; position:relative;}
   .hero-img{position:sticky; top:min(0px, calc(100svh - min(171.28vw, 856px))); z-index:1; aspect-ratio:1170 / 2004; background:#0000ff; overflow:hidden;}
   .hero-img canvas{position:absolute; inset:0; width:100%; height:100%; display:block;}
+
+  .layer-canvas{position:absolute; inset:0; width:100%; height:100%; display:block; image-rendering:pixelated;}
   .hero-img img.layer{position:absolute; inset:0; width:100%; height:100%; display:block;}
 
   /* リアルタイム認識風ボックス */
@@ -124,7 +126,7 @@
 <div class="stage">
   <div class="hero-img">
     <canvas id="gridCanvas" width="585" height="1002"></canvas>
-    <img class="layer" src="layer_bg.png" alt="">
+    <canvas id="thornCanvas" class="layer-canvas" width="146" height="250"></canvas>
     <div class="bob">
         <img class="layer" src="layer_char.png" alt="マイキャラ">
     <div class="det" style="left:37.3%;top:0.5%;width:22.3%;height:12.5%;animation-delay:0.00s"><span data-name="fluffy-cat-blue-accessory">fluffy-cat-blue-accessory</span></div>
@@ -527,6 +529,92 @@
         });
       });
     });
+  })();
+</script>
+
+<script>
+  (function(){
+    var cv = document.getElementById('thornCanvas');
+    if (!cv) return;
+    var ctx = cv.getContext('2d');
+    var W = cv.width, H = cv.height;
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var CX = 74, CY = 78, CORE = 17;
+
+    /* 棘の種: 角度・長さ・太さ・うねりの位相 */
+    var spikes = [];
+    var N = 30;
+    for (var i = 0; i < N; i++) {
+      var a = (i / N) * Math.PI * 2 + (Math.random() - 0.5) * 0.15;
+      var downBias = Math.max(0, Math.sin(a)) * 32;   /* 下向きの棘は長め */
+      spikes.push({
+        a: a,
+        len: 22 + Math.random() * 56 + downBias,
+        w: 0.028 + Math.random() * 0.045,
+        ph: Math.random() * Math.PI * 2,
+        sp: 0.4 + Math.random() * 0.9,
+        twitch: 0
+      });
+    }
+    var frags = [];
+    for (var j = 0; j < 6; j++) {
+      frags.push({x: CX + (Math.random() - 0.5) * 120, y: CY + (Math.random() - 0.5) * 150, s: 1 + Math.random() * 2.4, ph: Math.random() * 6});
+    }
+
+    function radiusAt(theta, t){
+      var r = CORE * (0.88 + 0.16 * Math.sin(theta * 3 + t * 0.7));
+      for (var i = 0; i < spikes.length; i++) {
+        var s = spikes[i];
+        var d = theta - s.a;
+        while (d > Math.PI) d -= Math.PI * 2;
+        while (d < -Math.PI) d += Math.PI * 2;
+        var pulse = 1 + 0.16 * Math.sin(t * s.sp * 2 + s.ph) + s.twitch;
+        r += s.len * pulse * Math.pow(Math.exp(-(d * d) / (2 * s.w * s.w)), 1.7);
+      }
+      return r;
+    }
+
+    function draw(t){
+      ctx.clearRect(0, 0, W, H);
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      var steps = 130;
+      for (var i = 0; i <= steps; i++) {
+        var th = (i / steps) * Math.PI * 2;
+        var r = radiusAt(th, t);
+        /* 座標を整数に丸めてドット絵っぽい段々に */
+        var x = Math.round(CX + Math.cos(th) * r);
+        var y = Math.round(CY + Math.sin(th) * r);
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+      ctx.fill();
+      /* 周りの小さな破片 */
+      frags.forEach(function(f){
+        var s = f.s * (0.8 + 0.3 * Math.sin(t * 1.7 + f.ph));
+        ctx.fillRect(Math.round(f.x + Math.sin(t + f.ph) * 1.5), Math.round(f.y + Math.cos(t * 0.8 + f.ph) * 1.5), Math.max(1, Math.round(s)), Math.max(1, Math.round(s)));
+      });
+    }
+
+    if (reduce) { draw(1); return; }
+    var running = true;
+    new IntersectionObserver(function(es){
+      es.forEach(function(e){ running = e.isIntersecting; });
+    }).observe(cv);
+
+    /* たまに1本の棘がビッと伸びる */
+    setInterval(function(){
+      var s = spikes[Math.floor(Math.random() * spikes.length)];
+      s.twitch = 0.35 + Math.random() * 0.4;
+      setTimeout(function(){ s.twitch = 0; }, 160 + Math.random() * 260);
+    }, 700);
+
+    var lastDraw = 0;
+    (function loop(ts){
+      var t = (ts || 0) * 0.001;
+      if (running && t - lastDraw > 0.085) { draw(t); lastDraw = t; }  /* コマ落としでドット感 */
+      requestAnimationFrame(loop);
+    })(0);
   })();
 </script>
 </body>
