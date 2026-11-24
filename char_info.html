@@ -78,6 +78,9 @@
   }
   .fade{opacity:0; transform:translateY(26px); transition:opacity .8s ease, transform .8s ease;}
   .fade.in{opacity:1; transform:translateY(0);}
+
+  /* 画像保存ガード（抑止用） */
+  img{-webkit-user-drag:none; -webkit-touch-callout:none; user-select:none; -webkit-user-select:none;}
 </style>
 </head>
 <body>
@@ -265,6 +268,15 @@
     }
     setTimeout(run, 5000 + Math.random() * 4000);
   })();
+</script>
+
+<script>
+  document.addEventListener('contextmenu', function(e){
+    if (e.target && e.target.tagName === 'IMG') e.preventDefault();
+  });
+  document.addEventListener('dragstart', function(e){
+    if (e.target && e.target.tagName === 'IMG') e.preventDefault();
+  });
 </script>
 </body>
 </html>

@@ -61,6 +61,10 @@
     border:2px solid var(--blue); transition:all .18s ease;
   }
   .btn:hover{background:#fff; color:var(--blue); transform:translateY(-2px);}
+
+  /* 画像保存ガード（抑止用） */
+  img{-webkit-user-drag:none; -webkit-touch-callout:none; user-select:none; -webkit-user-select:none;}
+  .char-img{display:block; width:100%; height:auto; margin:2px 0 14px;}
   .btn.fit{display:inline-block; width:auto; padding:15px 26px; align-self:flex-start;}
   /* ===== ハンバーガーメニュー（SP幅のみ） ===== */
   .burger{
@@ -133,6 +137,7 @@
   <section class="fade">
     <p class="label">( my character )</p>
     <h2>マイキャラ <span class="small mono">char_info</span></h2>
+    <img class="char-img" src="char_duo.jpg" alt="マイキャラ">
     <p>マイキャラちゃんの紹介は、専用ページにまとめています。</p>
     <div class="links">
       <a class="btn fit" href="char_info.html">マイキャラ紹介ページへ →</a>
@@ -190,6 +195,15 @@
     }, {threshold: 0.12});
     els.forEach(function(el){ io.observe(el); });
   })();
+</script>
+
+<script>
+  document.addEventListener('contextmenu', function(e){
+    if (e.target && e.target.tagName === 'IMG') e.preventDefault();
+  });
+  document.addEventListener('dragstart', function(e){
+    if (e.target && e.target.tagName === 'IMG') e.preventDefault();
+  });
 </script>
 </body>
 </html>
