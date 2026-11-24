@@ -106,9 +106,13 @@
 
   footer{border-top:2px solid var(--blue); margin-top:10px; padding:22px 20px 40px; text-align:center; color:var(--blue);}
   footer .copy{font-size:12px; color:#55556a; letter-spacing:.1em;}
+
+  #aboutGrid{position:fixed; inset:0; width:100%; height:100%; z-index:0; pointer-events:none;}
+  .wrap{position:relative; z-index:1;}
 </style>
 </head>
 <body>
+<canvas id="aboutGrid"></canvas>
 
 <button class="burger" id="burger" aria-label="メニュー"><span></span><span></span><span></span></button>
 <nav class="spmenu" id="spmenu">
@@ -167,7 +171,7 @@
 </main>
 
 <footer>
-  <p class="copy">© qurage_waon / watagi-ch.github.io</p>
+  <p class="copy">© qurage_waon</p>
 </footer>
 
 <script>
@@ -204,6 +208,55 @@
   document.addEventListener('dragstart', function(e){
     if (e.target && e.target.tagName === 'IMG') e.preventDefault();
   });
+</script>
+
+<script>
+  (function(){
+    var cv = document.getElementById('aboutGrid');
+    if (!cv) return;
+    var ctx = cv.getContext('2d');
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    function resize(){
+      cv.width = window.innerWidth;
+      cv.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+    function warp(x, y, t){
+      return [
+        x + Math.sin(y * 0.007 + t * 1.1) * 20 + Math.sin((x + y) * 0.003 + t * 0.5) * 10,
+        y + Math.cos(x * 0.006 + t * 0.9) * 20 + Math.cos((x - y) * 0.0025 - t * 0.45) * 10
+      ];
+    }
+    function draw(t){
+      var W = cv.width, H = cv.height;
+      ctx.clearRect(0, 0, W, H);
+      ctx.strokeStyle = 'rgba(130,140,170,0.10)';
+      ctx.lineWidth = 1;
+      var gap = 52, x, y, p;
+      for (x = -gap; x <= W + gap; x += gap) {
+        ctx.beginPath();
+        for (y = -32; y <= H + 32; y += 20) {
+          p = warp(x, y, t);
+          if (y === -32) ctx.moveTo(p[0], p[1]); else ctx.lineTo(p[0], p[1]);
+        }
+        ctx.stroke();
+      }
+      for (y = -gap; y <= H + gap; y += gap) {
+        ctx.beginPath();
+        for (x = -32; x <= W + 32; x += 20) {
+          p = warp(x, y, t);
+          if (x === -32) ctx.moveTo(p[0], p[1]); else ctx.lineTo(p[0], p[1]);
+        }
+        ctx.stroke();
+      }
+    }
+    if (reduce) { draw(0); return; }
+    (function loop(ts){
+      draw((ts || 0) * 0.0005);
+      requestAnimationFrame(loop);
+    })(0);
+  })();
 </script>
 </body>
 </html>
