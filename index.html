@@ -6,76 +6,64 @@
 <title>いんふぉめ〜しょん</title>
 <style>
   :root{
-    --pink:#ff9ec7; --pink-soft:#ffe3f0; --blue:#7ec8f7; --blue-soft:#e3f3ff;
-    --text:#4a4a68; --card:#ffffff;
+    --blue:#0000ee; --blue-dark:#0000b8; --blue-pale:#e8f4ff;
+    --sky:#7ec8f7; --lav:#b9a7ff; --ink:#101018; --paper:#ffffff;
   }
   *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
   body{
-    font-family:"Hiragino Maru Gothic ProN","Hiragino Sans","Noto Sans JP",sans-serif;
-    color:var(--text);
-    background:linear-gradient(180deg,var(--blue-soft) 0%,#fff 40%,var(--pink-soft) 100%);
-    min-height:100vh; overflow-x:hidden;
+    font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","Noto Sans JP",sans-serif;
+    color:var(--ink); background:var(--paper);
   }
-  /* ふわふわ浮かぶキラキラ */
-  .sparkle{position:fixed; top:-5vh; color:var(--pink); opacity:.7; pointer-events:none;
-    animation:fall linear infinite; z-index:0;}
-  @keyframes fall{
-    0%{transform:translateY(0) rotate(0deg);}
-    100%{transform:translateY(110vh) rotate(300deg);}
+  .mono{font-family:"Courier New",monospace;}
+
+  /* ===== パンくずリスト ===== */
+  .crumbs{
+    max-width:600px; margin:0 auto; padding:16px 20px 12px;
+    font-size:12px; letter-spacing:.14em; color:#55556a;
+    display:flex; align-items:center; gap:8px; flex-wrap:wrap;
   }
-  main{position:relative; z-index:1; max-width:560px; margin:0 auto; padding:40px 18px 64px;}
-  /* スクロールでふわっと出る */
-  .fade{opacity:0; transform:translateY(24px); animation:fadeUp .9s ease forwards;}
-  @keyframes fadeUp{to{opacity:1; transform:translateY(0);}}
-  .d1{animation-delay:.05s}.d2{animation-delay:.2s}.d3{animation-delay:.35s}
-  .d4{animation-delay:.5s}.d5{animation-delay:.65s}.d6{animation-delay:.8s}
-  header{text-align:center; margin-bottom:28px;}
-  .avatar{
-    width:110px; height:110px; margin:0 auto 14px; border-radius:50%;
-    background:radial-gradient(circle at 35% 30%,#fff,var(--pink-soft) 60%,var(--pink));
-    display:flex; align-items:center; justify-content:center; font-size:44px;
-    box-shadow:0 8px 24px rgba(255,158,199,.45);
-    animation:floaty 3.2s ease-in-out infinite;
-  }
-  @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-  h1{font-size:26px; letter-spacing:.06em;}
-  .sub{margin-top:6px; font-size:14px; color:#7a7a99;}
-  .card{
-    background:var(--card); border-radius:20px; padding:22px 20px; margin-bottom:18px;
-    box-shadow:0 6px 20px rgba(126,200,247,.18); border:2px solid #fdf3f8;
-  }
-  .card h2{font-size:17px; margin-bottom:10px; color:#d6699e; letter-spacing:.05em;}
-  .card p,.card li{font-size:14.5px; line-height:1.9;}
-  .card ul{list-style:none;}
-  .card li::before{content:"♡ "; color:var(--pink);}
-  .links{display:flex; flex-direction:column; gap:12px;}
+  .crumbs a{color:var(--blue); text-decoration:none; font-weight:700;}
+  .crumbs a:hover{text-decoration:underline;}
+  .crumbs .sep{color:#b9c6e8;}
+  .crumbs .here{color:var(--ink); font-weight:700;}
+
+  /* ===== 本文 ===== */
+  main{max-width:600px; margin:0 auto; padding:44px 20px 30px;}
+  section{margin-bottom:52px;}
+  .label{color:var(--blue); font-size:12.5px; letter-spacing:.22em; font-weight:700;}
+  h2{color:var(--blue); font-size:clamp(26px,6.5vw,36px); font-weight:900; letter-spacing:.03em; margin:4px 0 16px; display:flex; align-items:baseline; gap:12px;}
+  h2 .small{font-size:12px; font-weight:400; letter-spacing:.2em; margin-left:auto;}
+  p,li{font-size:15px; line-height:2.05; color:#22222e;}
+  ul{list-style:none;}
+  li{border-bottom:1px dashed #c9d8ff; padding:3px 0;}
+  li::before{content:"▸ "; color:var(--blue); font-weight:700;}
+  .note{font-size:13px; color:#55556a;}
+  .fade{opacity:0; transform:translateY(26px); transition:opacity .8s ease, transform .8s ease;}
+  .fade.in{opacity:1; transform:translateY(0);}
+  .links{display:flex; flex-direction:column; gap:12px; margin-top:6px;}
   .btn{
-    display:block; text-align:center; text-decoration:none; font-weight:700;
-    padding:14px 16px; border-radius:999px; color:#fff;
-    background:linear-gradient(90deg,var(--blue),var(--pink));
-    box-shadow:0 6px 16px rgba(126,200,247,.35);
-    transition:transform .18s ease, box-shadow .18s ease;
+    display:block; text-align:center; text-decoration:none; font-weight:800; letter-spacing:.06em;
+    padding:15px 18px; border-radius:999px; color:#fff; background:var(--blue);
+    border:2px solid var(--blue); transition:all .18s ease;
   }
-  .btn:hover{transform:translateY(-3px) scale(1.02); box-shadow:0 10px 22px rgba(255,158,199,.45);}
-  footer{text-align:center; font-size:12px; color:#9a9ab2; margin-top:26px;}
+  .btn:hover{background:#fff; color:var(--blue); transform:translateY(-2px);}
+  footer{border-top:2px solid var(--blue); margin-top:10px; padding:22px 20px 40px; text-align:center; color:var(--blue);}
+  footer .copy{font-size:12px; color:#55556a; letter-spacing:.1em;}
 </style>
 </head>
 <body>
-<span class="sparkle" style="left:8%; font-size:18px; animation-duration:11s;">✦</span>
-<span class="sparkle" style="left:22%; font-size:12px; animation-duration:14s; animation-delay:2s;">✦</span>
-<span class="sparkle" style="left:55%; font-size:15px; animation-duration:12s; animation-delay:4s;">✦</span>
-<span class="sparkle" style="left:74%; font-size:12px; animation-duration:15s; animation-delay:1s;">✦</span>
-<span class="sparkle" style="left:90%; font-size:17px; animation-duration:10s; animation-delay:3s;">✦</span>
+
+<nav class="crumbs mono" aria-label="breadcrumb">
+  <a href="./">TOP</a>
+  <span class="sep">›</span>
+  <span class="here">INFORMATION</span>
+</nav>
 
 <main>
-  <header class="fade d1">
-    <div class="avatar">🎀</div>
-    <h1>いんふぉめ〜しょん</h1>
-    <p class="sub">あいぷりおじさん ‧⁺ ⊹˚.⋆₍ᐢ.ˬ.ᐢ₎˖ ࣪⊹ ‧⁺<br>アイコンは @mawhip_n さま</p>
-  </header>
-
-  <section class="card fade d2">
-    <h2>°ʚ about me ɞ°</h2>
+  <section class="fade">
+    <p class="label">( about me )</p>
+    <h2>わたしについて <span class="small mono">profile</span></h2>
     <p>読んでいただきありがとうございます！（必読ではございません）</p>
     <p>20↑ 男性 都内<br>
     履修済 筐体：プリマジ6章→アイプリ<br>
@@ -83,15 +71,18 @@
     筐体メインでゆるくあそんでいます</p>
   </section>
 
-  <section class="card fade d3">
-    <h2>°ʚ my character ɞ°</h2>
+  <section class="fade">
+    <p class="label">( my character )</p>
+    <h2>マイキャラ <span class="small mono">char_info</span></h2>
+    <p>マイキャラちゃんの紹介は、専用ページにまとめています。</p>
     <div class="links">
-      <a class="btn" href="https://piku.page/@qurage_waon/char_info">♡₊⁺ マイキャラ紹介ページ</a>
+      <a class="btn" href="https://piku.page/@qurage_waon/char_info">マイキャラ紹介ページへ →</a>
     </div>
   </section>
 
-  <section class="card fade d4">
-    <h2>°ʚ like ɞ°</h2>
+  <section class="fade">
+    <p class="label">( like )</p>
+    <h2>すきなもの <span class="small mono">favorites</span></h2>
     <ul>
       <li>マイキャラちゃん</li>
       <li>プリマジ：みゃむ、はにたん</li>
@@ -100,25 +91,31 @@
       <li>サンリオ：マイメロ、こぎみゅん、はなまるおばけ</li>
       <li>ポケモン：マホイップ、ドレディア</li>
     </ul>
-    <p>同担拒否など特にありません</p>
+    <p class="note">同担拒否など特にありません</p>
   </section>
 
-  <section class="card fade d5">
-    <h2>°ʚ other ɞ°</h2>
+  <section class="fade">
+    <p class="label">( other )</p>
+    <h2>そのほか <span class="small mono">notes</span></h2>
     <p>フォロリム・ブロ解等ご自由にしていただいて構いません。当方男性かつ成人済みですので、トラブル回避のため未成年の方や投稿内容を考慮してブロック・ブロ解等をさせていただく場合がございます。あらかじめご理解いただけますと幸いです。</p>
     <p>ここまで読んでいただきありがとうございました！</p>
   </section>
-
-  <section class="card fade d6">
-    <h2>°ʚ links ɞ°</h2>
-    <div class="links">
-      <a class="btn" href="https://x.com/qurage_waon">X（@qurage_waon）</a>
-      <a class="btn" href="https://lit.link/quragewaon">Lit.Link（中の人について）</a>
-      <a class="btn" href="https://piku.page/@qurage_waon">ピクページ</a>
-    </div>
-  </section>
-
-  <footer>© qurage_waon</footer>
 </main>
+
+<footer>
+  <p class="copy">© qurage_waon / watagi-ch.github.io</p>
+</footer>
+
+<script>
+  (function(){
+    var els = document.querySelectorAll('.fade');
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+      });
+    }, {threshold: 0.12});
+    els.forEach(function(el){ io.observe(el); });
+  })();
+</script>
 </body>
 </html>
