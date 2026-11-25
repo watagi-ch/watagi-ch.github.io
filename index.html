@@ -14,33 +14,91 @@
 <meta name="twitter:title" content="いんふぉめ〜しょん">
 <meta name="twitter:description" content="ゎ（@qurage_waon）のプロフィールページ">
 <meta name="twitter:image" content="https://watagi-ch.github.io/ogp.jpg">
-<link rel="preload" as="image" href="index_char.png">
+<link rel="preload" as="image" href="top_char.png">
 <link rel="icon" type="image/png" sizes="512x512" href="favicon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <style>
+
   *{margin:0; padding:0; box-sizing:border-box;}
   body{background:#ffffff; font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","Noto Sans JP",sans-serif;}
-  .stage{position:relative; max-width:500px; margin:0 auto; overflow:hidden;}
-  .hero{position:relative; aspect-ratio:1170 / 2532; background:#0000ff; overflow:hidden;}
-  .hero canvas.grid{position:absolute; inset:0; width:100%; height:100%; display:block;}
-  .thorn-wrap{position:absolute; left:-52%; top:-1%; width:150%; aspect-ratio:200 / 290; pointer-events:none;}
-  .thorn-wrap canvas{width:100%; height:100%; display:block; image-rendering:pixelated;}
-  .bob{position:absolute; inset:0;}
-  .hero img.layer{position:absolute; inset:0; width:100%; height:100%; display:block;}
+  #view-top .stage{position:relative; max-width:500px; margin:0 auto; overflow:hidden;}
+  #view-top .hero{position:relative; aspect-ratio:1170 / 2532; background:#0000ff; overflow:hidden;}
+  #view-top .hero canvas.grid{position:absolute; inset:0; width:100%; height:100%; display:block;}
+  #view-top .thorn-wrap{position:absolute; left:-46%; top:0%; width:138%; aspect-ratio:200 / 290; pointer-events:none;}
+  #view-top .thorn-wrap canvas{width:100%; height:100%; display:block; image-rendering:pixelated;}
+  /* キャラ（手と別レイヤー）。大きさは「縦」を基準に決める。認識枠はこの箱の中にキャラ画像基準で置く */
+  #view-top .char-mover{position:absolute; left:-79%; top:-1%; height:108%; z-index:2; transition:left .85s cubic-bezier(.4,0,.3,1), opacity .35s ease;}
+  #view-top .char-mover img.char-img{display:block; height:100%; width:auto;}
   /* リアルタイム認識風ボックス */
-  .det{position:absolute; z-index:4; border:1px solid rgba(255,255,255,.92); box-sizing:border-box; pointer-events:none; opacity:0; animation:detIn .18s steps(2) forwards;}
-  .det span{position:absolute; top:2px; right:5px; font-family:ui-monospace, Menlo, monospace; font-size:clamp(7px, 2vw, 10.5px); color:#fff; white-space:nowrap; text-shadow:0 0 3px rgba(0,0,120,.8);}
-  .det.eye span{left:calc(100% + 6px); right:auto; top:50%; transform:translateY(-50%);}
+  #view-top .det{position:absolute; z-index:4; border:1px solid rgba(255,255,255,.92); box-sizing:border-box; pointer-events:none; opacity:0; animation:detIn .18s steps(2) forwards;}
+  #view-top .det span{position:absolute; top:2px; right:5px; font-family:ui-monospace, Menlo, monospace; font-size:clamp(7px, 2vw, 10.5px); color:#fff; white-space:nowrap; text-shadow:0 0 3px rgba(0,0,120,.8);}
+  #view-top .det.eye span{left:calc(100% + 6px); right:auto; top:50%; transform:translateY(-50%);}
   @keyframes detIn{0%{opacity:0; transform:scale(1.04);}60%{opacity:1;}100%{opacity:1; transform:scale(1);}}
-  .btn-img{position:absolute; left:13.8%; width:73.4%; z-index:4; display:block; filter:drop-shadow(0 4px 10px rgba(0,0,120,.35));}
-  .btn-img img{display:block; width:100%; height:auto;}
-  .btn-img:hover{transform:scale(1.03);}
-  .btn-char{top:42%;}
-  .btn-about{top:50.6%;}
-  .secret{position:absolute; inset:0; z-index:9; max-height:100%; overflow:hidden; opacity:0; font-size:18px; line-height:1.5; text-align:center; user-select:none; pointer-events:none;}
+  #view-top .title-img{position:absolute; right:5%; top:14.5%; width:30%; z-index:3; pointer-events:none; transition:transform .72s cubic-bezier(.55,0,.8,.4), opacity .5s ease;}
+  /* 中の人遷移で手が引いてくる白背景（ヒーロー内・手の下） */
+  #view-top .wipe{position:absolute; inset:0; background:#fff; z-index:6; transform:translateX(-100%); pointer-events:none; transition:transform .9s cubic-bezier(.5,0,.7,.4);}
+  /* 手前の hand レイヤー（いちばん前） */
+  #view-top .hand-layer{position:absolute; inset:0; width:100%; height:100%; display:block; z-index:7; pointer-events:none; transition:transform .9s cubic-bezier(.5,0,.7,.4);}
+  #view-top .btn-img{position:absolute; left:13.8%; width:73.4%; z-index:5; display:block; filter:drop-shadow(0 4px 10px rgba(0,0,120,.35)); transition:transform .72s cubic-bezier(.55,0,.8,.4), opacity .3s ease;}
+  #view-top .btn-img img{display:block; width:100%; height:auto;}
+  #view-top .btn-img:hover{transform:scale(1.03);}
+  #view-top .btn-char{top:42%;}
+  #view-top .btn-about{top:50.6%;}
+  #view-top .secret{position:absolute; inset:0; z-index:9; max-height:100%; overflow:hidden; opacity:0; font-size:18px; line-height:1.5; text-align:center; user-select:none; pointer-events:none;}
+  /* ===== 遷移: マイキャラ紹介へ ===== */
+  #view-top .hero.leaving-char .hand-layer{transform:translateX(-106%);}
+  #view-top .hero.leaving-char .btn-img{transform:translateX(-118%); opacity:0;}
+  #view-top .hero.leaving-char .title-img{transform:translateX(118%); opacity:0;}
+  /* キャラはサイズそのまま、右へスライドして中央へ（枠・トゲ・グリッドはそのまま引き継ぐ） */
+  #view-top .hero.to-char .char-mover{left:-53%;}
+  /* 中の人から直行する時用: hand はワイプ係なので残し、ボタンとタイトルだけ先に捌けておく */
+  #view-top .hero.exit-rest .btn-img{transform:translateX(-118%); opacity:0;}
+  #view-top .hero.exit-rest .title-img{transform:translateX(118%); opacity:0;}
+  #topHero.noanim, #topHero.noanim *{transition:none !important;}
+  /* マイキャラ紹介表示中、トップは背景として残す */
+  #view-top.backdrop{pointer-events:none;}
+  #view-top canvas.grid, #view-top .thorn-wrap{transition:opacity .3s ease;}
+  /* ===== 遷移: 中の人へ（手が白背景を引いて敷く） ===== */
+  #view-top .hero.leaving-about .hand-layer{transform:translateX(100%);}
+  #view-top .hero.leaving-about .wipe{transform:translateX(0);}
+  /* キャラやタイトルは消さず、白背景に覆われるまで残す */
+  #view-top .hero.leaving-about .btn-img{pointer-events:none;}
   /* 画像保存ガード（抑止用） */
   img{-webkit-user-drag:none; -webkit-touch-callout:none; user-select:none; -webkit-user-select:none;}
+
+  /* ===== ビュー（合体ページの画面） ===== */
+  body #view-char{position:fixed; inset:0; z-index:80; overflow-y:auto; background:transparent; transform:translateY(103%); visibility:hidden; transition:transform .68s cubic-bezier(.32,.72,.24,1), visibility 0s linear .68s; overscroll-behavior:contain; -webkit-overflow-scrolling:touch;}
+  /* 合体版では紹介側のヒーロー画像は使わない（トップのキャラ・枠・トゲ・グリッドを引き継ぐ） */
+  #view-char .hero-img{display:none;}
+  #view-char .char-spacer{aspect-ratio:1170 / 1560; width:100%;}
+  /* スペーサーより下は青で塗りつぶす（後ろのトップが透けないように） */
+  #view-char .stage{background:linear-gradient(to bottom, rgba(0,0,255,0) 0, rgba(0,0,255,0) min(133.3vw, 666.7px), #0000ff min(133.3vw, 666.7px), #0000ff 100%);}
+  /* メニューは共通の1個に統一するので、about側のバーガーは隠す */
+  #view-about #burger, #view-about #spmenu{display:none !important;}
+  #view-char.open{transform:translateY(0); visibility:visible; transition:transform .68s cubic-bezier(.32,.72,.24,1), visibility 0s;}
+  #view-about{position:fixed; inset:0; z-index:70; overflow-y:auto; opacity:0; visibility:hidden; transition:opacity .45s ease, visibility 0s linear .45s; overscroll-behavior:contain; -webkit-overflow-scrolling:touch;}
+  #view-about.open{opacity:1; visibility:visible; transition:opacity .45s ease, visibility 0s;}
+  #view-char.noanim, #view-about.noanim{transition:none !important;}
+  /* ===== 常時表示メニュー（全画面共通・右上に固定、PC・SP共通） ===== */
+  /* トップでは出さない（大きなボタンと役目が被るため）。紹介・中の人の画面だけで出す */
+  .nav-burger{display:none; position:fixed; top:12px; right:14px; z-index:300; width:46px; height:46px; border-radius:50%; border:2px solid #0000ee; background:#fff; cursor:pointer; padding:0;}
+  #view-char.open ~ .nav-burger, #view-about.open ~ .nav-burger{display:block;}
+  .nav-burger span{display:block; width:20px; height:2px; background:#0000ee; margin:5px auto; transition:transform .25s ease, opacity .2s ease;}
+  .nav-burger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+  .nav-burger.open span:nth-child(2){opacity:0;}
+  .nav-burger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+  .nav-menu{display:flex; position:fixed; inset:0; z-index:290; background:#0000ee; flex-direction:column; align-items:center; justify-content:center; gap:34px; clip-path:circle(0% at calc(100% - 37px) 35px); visibility:hidden; transition:clip-path .38s ease-in, visibility 0s .38s;}
+  .nav-menu.open{clip-path:circle(142% at calc(100% - 37px) 35px); visibility:visible; transition:clip-path .7s cubic-bezier(.3,1.45,.5,1), visibility 0s;}
+  .nav-menu a{color:#fff; text-decoration:none; font-weight:900; font-size:26px; letter-spacing:.08em; opacity:0; transform:translateY(30px) scale(.85); font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","Noto Sans JP",sans-serif;}
+  .nav-menu.open a{opacity:1; transform:translateY(0) scale(1); transition:opacity .3s ease, transform .55s cubic-bezier(.3,1.8,.5,1);}
+  .nav-menu.open a:nth-child(2){transition-delay:.08s;}
+  .nav-menu.open a:nth-child(3){transition-delay:.16s;}
+  .nav-menu a .en{display:block; text-align:center; font-size:11px; font-weight:400; letter-spacing:.3em; margin-top:4px; font-family:"Courier New",monospace;}
+  @media (prefers-reduced-motion: reduce){
+    #view-char, #view-about{transition-duration:.01s;}
+    #view-top .char-mover, #view-top .hand-layer, #view-top .title-img, #view-top .btn-img, #view-top .wipe{transition-duration:.01s;}
+  }
 
   /* ロード画面: ステータスマーク風 */
   #loader{position:fixed; inset:0; z-index:999; background:#0000ff; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; transition:opacity .45s ease;}
@@ -52,16 +110,165 @@
   #loader.done .ring{stroke-dasharray:63 0; stroke:#22c55e; fill:rgba(34,197,94,.14); animation:none;}
   #loader.done .check{transition:stroke-dashoffset .24s ease .02s; stroke-dashoffset:0;}
   @keyframes markSpin{to{transform:rotate(360deg);}}
-  #loader .load-label{position:relative; color:#fff; font-family:ui-monospace, Menlo, monospace; font-size:13px; letter-spacing:.35em; text-indent:.35em;}
-  #loader .load-label::after{content:""; position:absolute; left:-4px; right:-4px; top:50%; height:1.5px; background:#fff; transform:scaleX(0); transform-origin:left;}
-  #loader.done .load-label{opacity:.55; transition:opacity .3s;}
-  #loader.done .load-label::after{transition:transform .3s ease .08s; transform:scaleX(1);}
-  #loader .load-sub{color:rgba(255,255,255,.65); font-size:11px; letter-spacing:.2em;}
-
   #loadPct{color:#fff; font-family:ui-monospace, Menlo, monospace; font-size:12px; letter-spacing:.25em; text-indent:.25em; margin-top:-6px;}
+
+#view-char *{box-sizing:border-box; margin:0; padding:0;}
+#view-char{background:#0000ff; font-family:"Noto Sans JP","Hiragino Kaku Gothic ProN",sans-serif;}
+#view-char .stage{max-width:500px; margin:0 auto; position:relative;}
+#view-char .hero-img{position:sticky; top:min(0px, calc(100svh - min(171.28vw, 856px))); z-index:1; aspect-ratio:1170 / 2004; background:#0000ff; overflow:hidden;}
+#view-char .hero-img canvas{position:absolute; inset:0; width:100%; height:100%; display:block;}
+#view-char .layer-canvas{position:absolute; inset:0; width:100%; height:100%; display:block; image-rendering:pixelated;}
+#view-char .hero-img img.layer{position:absolute; inset:0; width:100%; height:100%; display:block;}
+#view-char /* リアルタイム認識風ボックス */
+  .det{position:absolute; z-index:4; border:1px solid rgba(255,255,255,.92); box-sizing:border-box; pointer-events:none; opacity:0; animation:ch_detIn .18s steps(2) forwards;}
+#view-char .det span{position:absolute; top:2px; right:5px; font-family:ui-monospace, Menlo, monospace; font-size:clamp(7px, 2vw, 10.5px); color:#fff; white-space:nowrap; text-shadow:0 0 3px rgba(0,0,120,.8);}
+@keyframes ch_detIn{0%{opacity:0; transform:scale(1.04);}60%{opacity:1;}100%{opacity:1; transform:scale(1);}}
+#view-char .det.eye span{left:calc(100% + 6px); right:auto; top:50%; transform:translateY(-50%);}
+#view-char /* キャラが生きてる感じ: ゆっくり上下 */
+  .bob{position:absolute; inset:0; animation:ch_bobMove 5.4s ease-in-out infinite alternate;}
+@keyframes ch_bobMove{from{transform:translateY(-5px);} to{transform:translateY(6px);}}
+@media (prefers-reduced-motion: reduce){#view-char .bob{animation:none;}}
+#view-char .secret{position:absolute; inset:0; z-index:5; overflow:hidden; color:transparent; font-size:16px; line-height:1.6; word-break:break-all; user-select:text;}
+#view-char .secret::selection{background:#ffb7d5; color:#f00;}
+#view-char .sheet{background:#fff; color:#0000ff; padding:26px 16px 30px; position:relative; z-index:2; box-shadow:0 -14px 28px rgba(0,0,90,.28);}
+#view-char h1{font-size:30px; font-weight:700;}
+#view-char .info-sub{text-align:right; font-size:14px; margin-top:-22px; margin-bottom:18px;}
+#view-char .body-text{font-size:16px; line-height:2;}
+#view-char .ch5{
+    position:relative; z-index:2; color:#0000ff; padding:26px 16px 30px; overflow:hidden;
+    background:linear-gradient(to bottom, #ffffff 0, #ffffff 150px, #0000ff 150px, #0000ff 100%);
+  }
+#view-char .ch5 .body-text{position:relative; z-index:1;}
+#view-char .ch5 .body-text::selection{background:#ffb7d5; color:#000;}
+#view-char .logs{position:absolute; inset:0; z-index:2; pointer-events:none;}
+#view-char .logs img{position:absolute; width:68.6%; height:auto; box-shadow:0 10px 24px rgba(0,0,120,.35);}
+#view-char .logs img:nth-child(1){left:3.8%; top:-6px;}
+#view-char .logs img:nth-child(2){left:-19%; top:274px;}
+#view-char .logs img:nth-child(3){left:27.8%; top:335px;}
+#view-char .logs img:nth-child(4){left:3.8%; top:592px;}
+#view-char .bluezone{color:#fff; position:relative; z-index:2; background:#0000ff;}
+#view-char .bluezone img.eyes{display:block; width:100%; height:auto; margin-top:26px;}
+#view-char .bsod{font-size:20px; line-height:1.9; padding:30px 16px 6px;}
+#view-char .bsod a{color:#fff;}
+#view-char .void{height:52vh;}
+#view-char .fiction{font-size:11px; line-height:1.9; padding:0 16px 34px;}
+#view-char /* ===== エラー演出 ===== */
+  .stage::after{
+    content:""; position:absolute; inset:0; z-index:40; pointer-events:none;
+    background:repeating-linear-gradient(0deg, rgba(0,0,0,.10) 0 1px, transparent 1px 3px);
+    mix-blend-mode:multiply; opacity:.5;
+  }
+#view-char .bluezone{overflow:hidden;}
+#view-char .bsod-wrap{position:relative;}
+#view-char .bsod-layer{
+    position:absolute; inset:0; padding:30px 16px 6px; font-size:20px; line-height:1.9;
+    color:#fff; pointer-events:none; visibility:hidden; white-space:normal;
+  }
+#view-char .noise-block{position:absolute; z-index:6; pointer-events:none;}
+#view-char .ascii-noise{
+    position:absolute; z-index:5; color:#fff; font-family:"Courier New",monospace;
+    pointer-events:none; opacity:0; font-size:14px; letter-spacing:.2em;
+  }
+#view-char .status-line{
+    font-family:"Courier New",monospace; font-size:12px; color:#fff;
+    padding:0 16px 26px; letter-spacing:.08em;
+  }
+#view-char .status-line .cursor{display:inline-block; width:8px; height:14px; background:#fff; vertical-align:-2px; animation:ch_blink 1s steps(1) infinite;}
+@keyframes ch_blink{0%,60%{opacity:1} 61%,100%{opacity:0}}
+@media (prefers-reduced-motion: reduce){#view-char .status-line .cursor{animation:none;}}
+#view-char .fade{opacity:0; transform:translateY(26px); transition:opacity .8s ease, transform .8s ease;}
+#view-char .fade.in{opacity:1; transform:translateY(0);}
+#view-char /* 画像保存ガード（抑止用） */
+  img{-webkit-user-drag:none; -webkit-touch-callout:none; user-select:none; -webkit-user-select:none;}
+:root{
+    --blue:#0000ee; --blue-dark:#0000b8; --blue-pale:#e8f4ff;
+    --sky:#7ec8f7; --lav:#b9a7ff; --ink:#101018; --paper:#ffffff;
+  }
+#view-about *{box-sizing:border-box; margin:0; padding:0;}
+#view-about{
+    font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","Noto Sans JP",sans-serif;
+    color:var(--ink); background:var(--paper);
+  }
+#view-about .mono{font-family:"Courier New",monospace;}
+#view-about /* ===== パンくずリスト ===== */
+  .crumbs{
+    max-width:600px; margin:0 auto; padding:16px 20px 12px;
+    font-size:12px; letter-spacing:.14em; color:#55556a;
+    display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+  }
+#view-about .crumbs a{color:var(--blue); text-decoration:none; font-weight:700;}
+#view-about .crumbs a:hover{text-decoration:underline;}
+#view-about .crumbs .sep{color:#b9c6e8;}
+#view-about .crumbs .here{color:var(--ink); font-weight:700;}
+#view-about /* ===== 本文 ===== */
+  main{max-width:600px; margin:0 auto; padding:44px 20px 30px;}
+#view-about section{margin-bottom:52px;}
+#view-about .label{color:var(--blue); font-size:12.5px; letter-spacing:.22em; font-weight:700;}
+#view-about h2{color:var(--blue); font-size:clamp(26px,6.5vw,36px); font-weight:900; letter-spacing:.03em; margin:4px 0 16px; display:flex; align-items:baseline; gap:12px;}
+#view-about h2 .small{font-size:12px; font-weight:400; letter-spacing:.2em; margin-left:auto;}
+#view-about p, #view-about li{font-size:15px; line-height:2.05; color:#22222e;}
+#view-about ul{list-style:none;}
+#view-about li{border-bottom:1px dashed #c9d8ff; padding:3px 0;}
+#view-about li::before{content:"✦ "; color:var(--blue); font-weight:700;}
+#view-about .note{font-size:13px; color:#55556a;}
+#view-about .fade{opacity:0; transform:translateY(26px); transition:opacity .8s ease, transform .8s ease;}
+#view-about .fade.in{opacity:1; transform:translateY(0);}
+#view-about .links{display:flex; flex-direction:column; align-items:flex-start; gap:12px; margin-top:6px;}
+#view-about .btn{
+    display:block; text-align:center; text-decoration:none; font-weight:800; letter-spacing:.06em;
+    padding:15px 18px; border-radius:999px; color:#fff; background:var(--blue);
+    border:2px solid var(--blue); transition:all .18s ease;
+  }
+#view-about .btn:hover{background:#fff; color:var(--blue); transform:translateY(-2px);}
+#view-about /* 画像保存ガード（抑止用） */
+  img{-webkit-user-drag:none; -webkit-touch-callout:none; user-select:none; -webkit-user-select:none;}
+#view-about .char-img{display:block; width:100%; height:auto; margin:2px 0 14px;}
+#view-about .btn.fit{display:inline-block; width:auto; padding:15px 26px; align-self:flex-start;}
+#view-about /* ===== ハンバーガーメニュー（SP幅のみ） ===== */
+  .burger{
+    display:none; position:fixed; top:12px; right:14px; z-index:60;
+    width:46px; height:46px; border-radius:50%; border:2px solid var(--blue);
+    background:#fff; cursor:pointer; padding:0;
+  }
+#view-about .burger span{
+    display:block; width:20px; height:2px; background:var(--blue);
+    margin:5px auto; transition:transform .25s ease, opacity .2s ease;
+  }
+#view-about .burger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+#view-about .burger.open span:nth-child(2){opacity:0;}
+#view-about .burger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+#view-about .spmenu{
+    display:flex; position:fixed; inset:0; z-index:55; background:var(--blue);
+    flex-direction:column; align-items:center; justify-content:center; gap:34px;
+    clip-path:circle(0% at calc(100% - 37px) 35px);
+    visibility:hidden;
+    transition:clip-path .38s ease-in, visibility 0s .38s;
+  }
+#view-about .spmenu.open{
+    clip-path:circle(142% at calc(100% - 37px) 35px);
+    visibility:visible;
+    transition:clip-path .7s cubic-bezier(.3,1.45,.5,1), visibility 0s;
+  }
+#view-about .spmenu a{
+    color:#fff; text-decoration:none; font-weight:900; font-size:26px; letter-spacing:.08em;
+    opacity:0; transform:translateY(30px) scale(.85);
+  }
+#view-about .spmenu.open a{
+    opacity:1; transform:translateY(0) scale(1);
+    transition:opacity .3s ease, transform .55s cubic-bezier(.3,1.8,.5,1);
+  }
+#view-about .spmenu.open a:nth-child(2){transition-delay:.08s;}
+#view-about .spmenu.open a:nth-child(3){transition-delay:.16s;}
+#view-about .spmenu a .en{display:block; text-align:center; font-size:11px; font-weight:400; letter-spacing:.3em; margin-top:4px;}
+@media (max-width:640px){#view-about .burger{display:block;}}
+#view-about footer{border-top:2px solid var(--blue); margin-top:10px; padding:22px 20px 40px; text-align:center; color:var(--blue);}
+#view-about footer .copy{font-size:12px; color:#55556a; letter-spacing:.1em;}
+#view-about #aboutGrid{position:fixed; inset:0; width:100%; height:100%; z-index:0; pointer-events:none;}
+#view-about .wrap{position:relative; z-index:1;}
 </style>
 </head>
 <body>
+
 <div id="loader" class="running" aria-hidden="true">
   <svg class="mark" viewBox="0 0 24 24">
     <circle class="ring" cx="12" cy="12" r="10"></circle>
@@ -69,28 +276,143 @@
   </svg>
   <div id="loadPct">0%</div>
 </div>
-<div class="stage">
-  <div class="hero" id="hero">
-    <canvas class="grid" id="gridCanvas" width="585" height="1266"></canvas>
-    <div class="thorn-wrap"><canvas id="thornCanvas" width="200" height="290"></canvas></div>
-    <div class="bob">
-      <img class="layer" src="index_char.png" alt="マイキャラ">
-      <div class="det" style="left:15.0%;top:3.5%;width:21.0%;height:7.5%;animation-delay:0.00s"><span data-name="fluffy-cat-blue-accessory">fluffy-cat-blue-accessory</span></div>
-      <div class="det" style="left:32.0%;top:5.5%;width:23.0%;height:10.0%;animation-delay:0.13s"><span data-name="fluffy-cat-blue-accessory">fluffy-cat-blue-accessory</span></div>
-      <div class="det" style="left:4.5%;top:17.5%;width:35.0%;height:13.0%;animation-delay:0.26s"><span data-name="hitamuki-face">hitamuki-face</span></div>
-      <div class="det eye" style="left:28.0%;top:21.5%;width:14.0%;height:5.5%;animation-delay:0.39s"><span data-name="priusa-purple-eye">priusa-purple-eye</span></div>
-      <div class="det" style="left:5.0%;top:32.5%;width:32.0%;height:7.5%;animation-delay:0.52s"><span data-name="fluffy-cat-blue-tops">fluffy-cat-blue-tops</span></div>
-      <div class="det" style="left:32.0%;top:35.5%;width:28.0%;height:11.5%;animation-delay:0.65s"><span data-name="fluffy-cat-blue-tops">fluffy-cat-blue-tops</span></div>
-      <div class="det" style="left:5.0%;top:53.5%;width:61.0%;height:10.5%;animation-delay:0.78s"><span data-name="fluffy-cat-blue-bottoms">fluffy-cat-blue-bottoms</span></div>
-      <div class="det" style="left:32.0%;top:56.5%;width:47.0%;height:34.0%;animation-delay:0.91s"><span data-name="fluffy-cat-blue-bottoms">fluffy-cat-blue-bottoms</span></div>
+
+<div id="view-top">
+  <div class="stage">
+    <div class="hero" id="topHero">
+      <canvas class="grid" id="topGrid" width="585" height="1266"></canvas>
+      <div class="thorn-wrap"><canvas id="topThorn" width="200" height="290"></canvas></div>
+      <div class="char-mover" id="charMover">
+        <img class="char-img" src="top_char.png" alt="マイキャラ">
+        <div class="det" style="left:47.6%;top:0.5%;width:33.3%;height:18.4%;animation-delay:0.00s"><span data-name="fluffy-cat-blue-accessory">fluffy-cat-blue-accessory</span></div>
+        <div class="det" style="left:46.4%;top:16.8%;width:23.8%;height:14.7%;animation-delay:0.13s"><span data-name="hitamuki-face">hitamuki-face</span></div>
+        <div class="det eye" style="left:59.5%;top:21.4%;width:9.0%;height:5.5%;animation-delay:0.26s"><span data-name="priusa-purple-eye">priusa-purple-eye</span></div>
+        <div class="det" style="left:39.3%;top:29.8%;width:27.0%;height:22.7%;animation-delay:0.39s"><span data-name="fluffy-cat-blue-tops">fluffy-cat-blue-tops</span></div>
+        <div class="det" style="left:8.8%;top:48.0%;width:83.2%;height:41.3%;animation-delay:0.52s"><span data-name="fluffy-cat-blue-bottoms">fluffy-cat-blue-bottoms</span></div>
+        <div class="det" style="left:12.0%;top:55.0%;width:40.0%;height:30.0%;animation-delay:0.65s"><span data-name="fluffy-cat-blue-bottoms">fluffy-cat-blue-bottoms</span></div>
+      </div>
+      <img class="title-img" src="top_title.png" alt="いんふぉめ〜しょん information">
+      <div class="wipe"></div>
+      <img class="hand-layer" src="top_hand.png" alt="">
+      <a class="btn-img btn-char" href="#char" data-nav="char"><img src="btn_char.png" alt="マイキャラ紹介"></a>
+      <a class="btn-img btn-about" href="#about" data-nav="about"><img src="btn_about.png" alt="中の人について"></a>
+      <div class="secret">すぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせ</div>
     </div>
-      <div class="info-sub">information</div>
-    </div>
-    <a class="btn-img btn-char" href="char_info.html"><img src="btn_char.png" alt="マイキャラ紹介"></a>
-    <a class="btn-img btn-about" href="about.html"><img src="btn_about.png" alt="中の人について"></a>
-    <div class="secret">すぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせ</div>
   </div>
 </div>
+
+<div id="view-char">
+<div class="stage">
+<div class="char-spacer"></div>
+  <div class="hero-img">
+    <canvas id="chGridCanvas" width="585" height="1002"></canvas>
+    <canvas id="chThornCanvas" class="layer-canvas" width="146" height="250"></canvas>
+    <div class="bob">
+        <img class="layer" src="layer_char.png" alt="マイキャラ">
+    <div class="det" style="left:37.3%;top:0.5%;width:22.3%;height:12.5%;animation-delay:0.00s"><span data-name="fluffy-cat-blue-accessory">fluffy-cat-blue-accessory</span></div>
+    <div class="det" style="left:45.7%;top:3.9%;width:31.2%;height:10.4%;animation-delay:0.13s"><span data-name="fluffy-cat-blue-accessory">fluffy-cat-blue-accessory</span></div>
+    <div class="det" style="left:62.5%;top:6.7%;width:28.5%;height:12.5%;animation-delay:0.26s"><span data-name="fluffy-cat-blue-accessory">fluffy-cat-blue-accessory</span></div>
+    <div class="det" style="left:36.1%;top:21.1%;width:35.9%;height:18.4%;animation-delay:0.39s"><span data-name="hitamuki-face">hitamuki-face</span></div>
+    <div class="det eye" style="left:57.4%;top:27.0%;width:13.8%;height:6.1%;animation-delay:0.52s"><span data-name="priusa-purple-eye">priusa-purple-eye</span></div>
+    <div class="det" style="left:2.8%;top:37.6%;width:24.4%;height:12.9%;animation-delay:0.65s"><span data-name="fluffy-cat-blue-tops">fluffy-cat-blue-tops</span></div>
+    <div class="det" style="left:20.6%;top:40.0%;width:46.3%;height:26.7%;animation-delay:0.78s"><span data-name="fluffy-cat-blue-tops">fluffy-cat-blue-tops</span></div>
+    <div class="det" style="left:66.1%;top:44.3%;width:24.4%;height:14.1%;animation-delay:0.91s"><span data-name="fluffy-cat-blue-tops">fluffy-cat-blue-tops</span></div>
+    <div class="det" style="left:0.0%;top:59.4%;width:31.1%;height:30.4%;animation-delay:1.04s"><span data-name="fluffy-cat-blue-bottoms">fluffy-cat-blue-bottoms</span></div>
+    <div class="det" style="left:2.1%;top:68.6%;width:93.9%;height:30.4%;animation-delay:1.17s"><span data-name="fluffy-cat-blue-bottoms">fluffy-cat-blue-bottoms</span></div>
+    </div>
+    <div class="secret">すぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせすぐにけせ</div>
+  </div>
+
+  <div class="sheet">
+    <h1>マイキャラ紹介</h1>
+    <p class="info-sub">information</p>
+    <div class="body-text fade" id="chScramble">1. 背景および旧システムにおける登録状態<br>かつて運用されていた広域電脳ライブエンターテインメント規格『ワッチャ！プリマジスタジオ』において、一般ユーザーアカウント「わたぎ」として登録されていたデータに関するログ。当該アカウントは元来、物理世界に実体を持つ生体ユーザーであったが、システム運用期間最終日未明にログイン以降、その構成要素がデータサーバー上の固定データ体へと変異・固着した特異事例として記録されている。<br>なお、物理世界（現実空間）側においては、当該生体の失踪に伴い所轄の█████警察署において捜索願（行方不明者届）が受理されている。届出は現在も取り下げられていない。<br><br>2. サービス終了処理における異常なデータ残留<br>2024年3月31日未明、運営ポリシーに基づき『ワッチャ！プリマジスタジオ』の全サーバー群の停止、および物理セッションの解体（シャットダウン）が順次実行された。<br>通常プロセスでは全ユーザーデータおよび構成プロトコルが自動消去される設計であったが、当該個体は現実空間とのセッション切断信号を無視し、自動消去シーケンスを回避。シャットダウンに伴い孤立した旧サーバー内の未割り当て領域（未解放メモリプール）へ自らを構成するデータを退避させ、以降、完全なオフライン環境下において永続的に残留した。<br><br>3. 孤立サーバー環境における単独プロセス実行（ソロライブ）<br>外部ネットワークからの接続が完全に断絶し、通常の稼働信号が途絶したスタンドアロン状態の旧サーバー内において、当該個体はバックグラウンドプロセスとして動作を継続。観測者および外部通信が存在しない状態であるにもかかわらず、未割り当て領域上で旧ライブシミュレーション・ルーチン（ソロライブ処理）を無限ループ実行し続けていたことが確認されている。ループ回数は、確認可能な範囲で█████████回を超過している。<br><br>4. 次世代システム『アイプリバース』への不正アクセスおよび現在のアクティビティ<br>その後、新規格プラットフォーム『アイプリバース』の運用開始に伴い、当該個体は旧システムとの共通通信ポートおよびレガシープロトコルの脆弱性を突く形で、未公開の内部APIを経由して侵入経路を検知。正規のID発行および認証フェーズをバイパスし、システム内部への不正なソケット接続を確立した。<br>現在は、システム側の監査アラートを巧妙に回避する偽装ヘッダーを付与した状態で、非正規の『アイプリ』データとしてシステム内部に常駐・活動の継続が確認されている。見た目は他のアイプリと区別がつかない。ただし、当該個体はこの世界の住民ではない。</div>
+  </div>
+
+  <div class="ch5">
+    <div class="body-text">5. パーソナリティおよび残留動因に関する心理・行動特性解析<br>当該個体の基底パーソナリティ、およびシステム消滅後も旧環境への固執・残留を選択した行動原理に関する解析結果は以下の通りである。<br><br>5-1. 基本属性および環境依存的背景<br><br>社会的属性: 籍を置く実世界においては大学4年生の身分であるが、学業へのリソース配分は著しく不規則であり、単位不足および出席率の慢性的な低迷が記録されている。<br><br>経済的基盤: 過去の基幹事業（養蚕業）からの転換を経て現代の若年層向けアパレル事業で成功を収めた上位資本家系を実家に持ち、生活基盤・経済的自立性において極めて強固な保護下に置かれている。<br><br>対人関係と適応機序: 内向的・防衛的傾向が強く観測されており、限定的な親交関係以外への執着を欠く一方、環境適応上の不安感から依存的傾向を内包し、対人継続性における不全が確認されている。<br><br>5-2. プリマジ環境における行動変容と依存構造<br><br>実世界における狭隘な交友関係および進路（就職活動等）からの逃避的動機、ならびに「合法的に嗜好するアパレル（女児服・非日常的意匠）を常時着用できる環境」の維持を目的として、同規格へのアクセス頻度が増加した。<br><br>実世界では対人交渉力・継続性に制限がある反面、仮想空間上（プリマジ内）における匿名性および関係性の希薄さ（単発的交流の許容性）を利用し、他個体への過剰なアプローチを行うなど、現実世界とは乖離した攻撃的かつ積極的な関与行動が確認されている。<br><br>5-3. サービス終了時における「残留」の論理的動因<br><br>現実世界への非同調: 周囲の人間関係や卒業後の進路決定という現実的な環境変化に対し、個体は適応コストおよび心理的負荷を強く拒絶していた。<br>存在承認のプラットフォーム依存: 実世界におけるアイデンティティの欠落を、旧規格の電脳空間におけるアパレル的自己表現と、限定的な他者認知（プリマジスタとしての活動）によってのみ補完していた。<br><br>他力本願的固執: 極度の受動的依存気質が災いし、システム終了という客観的かつ強制的な切断処理に対し、主体的な受容（ログアウト）を選択せず、唯一自己の全肯定が得られた電脳環境の最深部へ引きこもる形で残留エラーを引き起こした。<br><br>結果として、消失した旧空間の残骸にしがみつく形で孤独なルーチンワーク（ソロライブ）を継続し、その後の新規格『アイプリバース』への不正侵入に至るまでの行動原理は、現実適応の完全な破綻と、仮想空間への病理的依存の帰結として説明される。</div>
+    <div class="logs">
+    <img src="log1.gif" alt="log_542789203.mp4">
+    <img src="log2.gif" alt="log_542789203.mp4">
+    <img src="log3.gif" alt="log_542789203.mp4">
+    <img src="log4.gif" alt="log_542789203.mp4">
+    </div>
+  </div>
+
+  <div class="bluezone">
+    <img class="eyes" src="eyes.gif" alt="">
+    <div class="bsod-wrap"><div class="bsod" id="chBsodMain">問題が発生したため、端末を再起動する必要があります。<br>エラー情報を収集しています。再起動できます。<br><br><span id="chPct">10</span>%完了　<span id="chBlocks">█□□□□□□□□□</span><br><br>この問題と可能な解決方法の詳細については、<br><a href="https://aipri.jp/mypage/entrance/">https://aipri.jp/mypage/entrance/</a><br>を参照してください。</div></div>
+    <p class="status-line">&gt;&gt;&gt; signal lost // reconnecting<span class="cursor"></span></p>
+    <div class="void"></div>
+    <p class="fiction">当サイトに掲載されているストーリー、登場人物の名称、団体名、設定、エピソード等はすべてフィクションです。<br>実在する人物、団体、事件、地域等とは一切関係ありません。</p>
+  </div>
+</div>
+</div>
+
+<div id="view-about">
+<canvas id="aboutGrid"></canvas>
+
+<button class="burger" id="burger" aria-label="メニュー"><span></span><span></span><span></span></button>
+<nav class="spmenu" id="spmenu">
+  <a href="#top" data-nav="top">トップ<span class="en mono">TOP</span></a>
+  <a href="#about">わたしについて<span class="en mono">ABOUT ME</span></a>
+  <a href="#char" data-nav="char">マイキャラ紹介<span class="en mono">MY CHARACTER</span></a>
+</nav>
+
+<main>
+  <section class="fade" id="about">
+    <p class="label">( about me )</p>
+    <h2>わたしについて <span class="small mono">profile</span></h2>
+    <p>読んでいただきありがとうございます！（必読ではございません）</p>
+    <p>20↑ 男性 都内<br>
+    履修済 筐体：プリマジ6章→アイプリ<br>
+    アニメ：アイプリ、プリマジ、プリパラ少し<br>
+    筐体メインでゆるくあそんでいます</p>
+  </section>
+
+  <section class="fade">
+    <p class="label">( my character )</p>
+    <h2>マイキャラ <span class="small mono">char_info</span></h2>
+    <img class="char-img" src="char_duo.jpg" alt="マイキャラ">
+    <p>マイキャラちゃんの紹介は、専用ページにまとめています。</p>
+    <div class="links">
+      <a class="btn fit" href="#char" data-nav="char">マイキャラ紹介へ →</a>
+    </div>
+  </section>
+
+  <section class="fade">
+    <p class="label">( like )</p>
+    <h2>すきなもの <span class="small mono">favorites</span></h2>
+    <ul>
+      <li>マイキャラちゃん</li>
+      <li>プリマジ：みゃむ、はにたん</li>
+      <li>アイプリ：プリうさムギちゃん、えるちゃん</li>
+      <li>プリキュア：キュアワンダフル、犬飼こむぎ</li>
+      <li>サンリオ：マイメロ、こぎみゅん、はなまるおばけ</li>
+      <li>ポケモン：マホイップ、ドレディア</li>
+    </ul>
+    <p class="note">同担拒否など特にありません</p>
+  </section>
+
+  <section class="fade">
+    <p class="label">( other )</p>
+    <h2>そのほか <span class="small mono">notes</span></h2>
+    <p>フォロリム・ブロ解等ご自由にしていただいて構いません。当方男性かつ成人済みですので、トラブル回避のため未成年の方や投稿内容を考慮してブロック・ブロ解等をさせていただく場合がございます。あらかじめご理解いただけますと幸いです。</p>
+    <p>ここまで読んでいただきありがとうございました！</p>
+  </section>
+</main>
+
+<footer>
+  <p class="copy">© qurage_waon</p>
+</footer>
+</div>
+
+<button class="nav-burger" type="button" aria-label="メニュー"><span></span><span></span><span></span></button>
+<nav class="nav-menu">
+  <a href="#top" data-nav="top">トップ<span class="en">TOP</span></a>
+  <a href="#char" data-nav="char">マイキャラ紹介<span class="en">MY CHARACTER</span></a>
+  <a href="#about" data-nav="about">中の人について<span class="en">ABOUT ME</span></a>
+</nav>
 <script>
   document.addEventListener('contextmenu', function(e){
     if (e.target && e.target.tagName === 'IMG') e.preventDefault();
@@ -101,7 +423,7 @@
 </script>
 <script>
   (function(){
-    var cv = document.getElementById('gridCanvas');
+    var cv = document.getElementById('topGrid');
     if (!cv) return;
     var ctx = cv.getContext('2d');
     var W = cv.width, H = cv.height;
@@ -188,7 +510,7 @@
 </script>
 <script>
   (function(){
-    var cv = document.getElementById('thornCanvas');
+    var cv = document.getElementById('topThorn');
     if (!cv) return;
     var ctx = cv.getContext('2d');
     var W = cv.width, H = cv.height;
@@ -274,10 +596,10 @@
 <script>
   (function(){
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      document.querySelectorAll('.det').forEach(function(b){ b.style.opacity = 1; b.style.animation = 'none'; });
+      document.querySelectorAll('#view-top .det').forEach(function(b){ b.style.opacity = 1; b.style.animation = 'none'; });
       return;
     }
-    var boxes = Array.prototype.slice.call(document.querySelectorAll('.det'));
+    var boxes = Array.prototype.slice.call(document.querySelectorAll('#view-top .det'));
     boxes.forEach(function(box){
       box.addEventListener('animationend', function(){
         box.style.animation = 'none';
@@ -341,6 +663,685 @@
   })();
 </script>
 <script>
+  window.__initChar = function(){
+
+  (function(){
+    var els = document.querySelectorAll('#view-char .fade');
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+      });
+    }, {threshold: 0.05});
+    els.forEach(function(el){ io.observe(el); });
+  })();
+
+
+  (function(){
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var zone = document.querySelector('#view-char .stage');
+    var main = document.getElementById('chBsodMain');
+    var wrap = document.querySelector('#view-char .bsod-wrap');
+
+    /* BSODテキストのスライスグリッチ（複製レイヤーを帯状にずらす） */
+    var layers = [];
+    for (var i = 0; i < 2; i++) {
+      var l = document.createElement('div');
+      l.className = 'bsod-layer';
+      l.innerHTML = main.innerHTML;
+      wrap.appendChild(l);
+      layers.push(l);
+    }
+    function sliceBurst(){
+      layers.forEach(function(l){
+        var top = Math.random() * 70;
+        var h = 4 + Math.random() * 14;
+        l.style.clipPath = 'inset(' + top + '% 0 ' + (100 - top - h) + '% 0)';
+        l.style.transform = 'translateX(' + (Math.random() * 26 - 13) + 'px)';
+        l.style.visibility = 'visible';
+      });
+      setTimeout(function(){
+        layers.forEach(function(l){ l.style.visibility = 'hidden'; });
+      }, 120 + Math.random() * 120);
+      setTimeout(sliceBurst, 1400 + Math.random() * 2600);
+    }
+    setTimeout(sliceBurst, 1200);
+
+    /* ランダムな四角とASCIIノイズ */
+    var chars = ['#','+','=','@',':','^','/','-','///','^^^','+++'];
+    function spawn(){
+      if (!zone.isConnected) return;
+      var r = zone.getBoundingClientRect();
+      if (Math.random() < 0.6) {
+        var b = document.createElement('div');
+        b.className = 'noise-block';
+        b.style.left = (Math.random() * 92) + '%';
+        b.style.top = (Math.random() * 96) + '%';
+        b.style.width = (20 + Math.random() * 90) + 'px';
+        b.style.height = (6 + Math.random() * 22) + 'px';
+        b.style.background = Math.random() < 0.5 ? '#ffffff' : '#0000bb';
+        zone.appendChild(b);
+        setTimeout(function(){ b.remove(); }, 90 + Math.random() * 160);
+      } else {
+        var a = document.createElement('span');
+        a.className = 'ascii-noise';
+        a.textContent = chars[Math.floor(Math.random() * chars.length)];
+        a.style.left = (Math.random() * 90) + '%';
+        a.style.top = (Math.random() * 96) + '%';
+        a.style.opacity = '0.9';
+        zone.appendChild(a);
+        setTimeout(function(){ a.remove(); }, 300 + Math.random() * 500);
+      }
+      setTimeout(spawn, 260 + Math.random() * 650);
+    }
+    setTimeout(spawn, 800);
+
+    /* 進捗%が進んでは戻る */
+    var pct = document.getElementById('chPct');
+    var blocks = document.getElementById('chBlocks');
+    var val = 10;
+    function tick(){
+      if (Math.random() < 0.3) { val = Math.max(0, val - Math.floor(Math.random() * 9)); }
+      else { val = Math.min(97, val + Math.floor(Math.random() * 7)); }
+      pct.textContent = val;
+      var f = Math.round(val / 10), s = '';
+      for (var i = 0; i < 10; i++) { s += (i < f ? '█' : '□'); }
+      blocks.textContent = s;
+      setTimeout(tick, 700 + Math.random() * 1600);
+    }
+    setTimeout(tick, 1000);
+  })();
+
+
+  (function(){
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var el = document.getElementById('chScramble');
+    if (!el) return;
+
+    /* テキストノードを全部集めて元の文字を保存 */
+    var nodes = [];
+    (function walk(n){
+      n.childNodes.forEach(function(ch){
+        if (ch.nodeType === 3) nodes.push(ch);
+        else walk(ch);
+      });
+    })(el);
+    var originals = nodes.map(function(n){ return n.nodeValue; });
+    var total = originals.reduce(function(a, t){ return a + t.length; }, 0);
+    /* 高さを固定して、書き換え中に下の要素がガクガク動かないようにする */
+    function lockHeight(){ el.style.minHeight = el.offsetHeight + 'px'; }
+    lockHeight();
+    window.addEventListener('load', lockHeight);
+    var CHARS = 'アイウエオカキクケコサシスセソタチツテトナニヌネノ０１２３４５６７８９ＡＢＣＤＥＦ＃＠＄％＆＊＋＝＜＞！？';
+    function rand(){ return CHARS[Math.floor(Math.random() * CHARS.length)]; }
+
+    function render(frontier){
+      var idx = 0;
+      nodes.forEach(function(n, ni){
+        var src = originals[ni];
+        var out = '';
+        for (var i = 0; i < src.length; i++) {
+          var ch = src[i];
+          if (idx < frontier && !/\s/.test(ch)) out += rand();
+          else out += ch;
+          idx++;
+        }
+        n.nodeValue = out;
+      });
+    }
+    function restore(){
+      nodes.forEach(function(n, ni){ n.nodeValue = originals[ni]; });
+    }
+
+    function run(){
+      var start = null;
+      var DUR = 3200;
+      function step(ts){
+        if (!start) start = ts;
+        var p = Math.min(1, (ts - start) / DUR);
+        render(Math.floor(total * p));
+        if (p < 1) requestAnimationFrame(step);
+        else {
+          setTimeout(restore, 350);
+          setTimeout(run, 16000 + Math.random() * 18000);
+        }
+      }
+      requestAnimationFrame(step);
+    }
+    setTimeout(run, 10000 + Math.random() * 8000);
+  })();
+
+
+  (function(){
+    var cv = document.getElementById('chGridCanvas');
+    if (!cv) return;
+    var ctx = cv.getContext('2d');
+    var W = cv.width, H = cv.height;
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var scrollPhase = 0, lastScroll = document.getElementById('view-char').scrollTop;
+
+    var ripples = [];   /* {x, y, start} 触った場所からの波紋 */
+    var nowSec = 0;
+    function warp(x, y, t){
+      var dx = Math.sin(y * 0.014 + t * 1.25) * 13 + Math.sin(y * 0.05 - t * 0.8 + x * 0.004) * 5 + Math.sin((x + y) * 0.006 + t * 0.6) * 6;
+      var dy = Math.cos(x * 0.012 + t * 1.05) * 13 + Math.cos(x * 0.045 + t * 0.7 - y * 0.004) * 5 + Math.cos((x - y) * 0.005 - t * 0.5) * 6;
+      for (var i = 0; i < ripples.length; i++) {
+        var r = ripples[i];
+        var age = nowSec - r.start;
+        if (age < 0 || age > 2.4) continue;
+        var ddx = x - r.x, ddy = y - r.y;
+        var dist = Math.sqrt(ddx * ddx + ddy * ddy) || 1;
+        var front = age * 260;                                   /* 波紋の広がる速さ */
+        var band = Math.exp(-Math.pow(dist - front, 2) / 5200);  /* 輪の部分だけ揺らす */
+        var amp = Math.sin(dist * 0.11 - age * 13) * 15 * band * Math.exp(-age * 1.15);
+        dx += (ddx / dist) * amp;
+        dy += (ddy / dist) * amp;
+      }
+      return [x + dx, y + dy];
+    }
+    /* 触った・クリックした場所に波紋 */
+    var hero = cv.parentElement;
+    var lastRip = 0, lastX = -999, lastY = -999;
+    function addRipple(e){
+      var rect = cv.getBoundingClientRect();
+      var x = (e.clientX - rect.left) * (W / rect.width);
+      var y = (e.clientY - rect.top) * (H / rect.height);
+      ripples.push({x: x, y: y, start: nowSec});
+      if (ripples.length > 7) ripples.shift();
+      lastRip = nowSec; lastX = x; lastY = y;
+    }
+    hero.addEventListener('pointerdown', addRipple);
+    hero.addEventListener('pointermove', function(e){
+      if (nowSec - lastRip < 0.14) return;
+      var rect = cv.getBoundingClientRect();
+      var x = (e.clientX - rect.left) * (W / rect.width);
+      var y = (e.clientY - rect.top) * (H / rect.height);
+      if (Math.abs(x - lastX) + Math.abs(y - lastY) < 46) return;
+      addRipple(e);
+    });
+    function draw(t){
+      ctx.fillStyle = '#0000ff';
+      ctx.fillRect(0, 0, W, H);
+      ctx.strokeStyle = 'rgba(130,185,255,0.55)';
+      ctx.lineWidth = 1;
+      var gap = 42, x, y, p;
+      for (x = -gap; x <= W + gap; x += gap) {
+        ctx.beginPath();
+        for (y = -20; y <= H + 20; y += 12) {
+          p = warp(x, y, t);
+          if (y === -20) ctx.moveTo(p[0], p[1]); else ctx.lineTo(p[0], p[1]);
+        }
+        ctx.stroke();
+      }
+      for (y = -gap; y <= H + gap; y += gap) {
+        ctx.beginPath();
+        for (x = -20; x <= W + 20; x += 12) {
+          p = warp(x, y, t);
+          if (x === -20) ctx.moveTo(p[0], p[1]); else ctx.lineTo(p[0], p[1]);
+        }
+        ctx.stroke();
+      }
+    }
+    if (reduce) { draw(0); return; }
+    var running = true;
+    new IntersectionObserver(function(es){
+      es.forEach(function(e){ running = e.isIntersecting; });
+    }).observe(cv);
+    (function loop(ts){
+      nowSec = (ts || 0) * 0.001;
+      var sc = document.getElementById('view-char').scrollTop;
+      scrollPhase += (sc - lastScroll) * 0.0035;   /* スクロールでも波が進む */
+      lastScroll = sc;
+      ripples = ripples.filter(function(r){ return nowSec - r.start < 2.4; });
+      if (running) draw(nowSec + scrollPhase);
+      requestAnimationFrame(loop);
+    })(0);
+  })();
+
+
+  (function(){
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      document.querySelectorAll('#view-char .det').forEach(function(b){ b.style.opacity = 1; b.style.animation = 'none'; });
+      return;
+    }
+    var boxes = Array.prototype.slice.call(document.querySelectorAll('#view-char .det'));
+    boxes.forEach(function(box){
+      box.addEventListener('animationend', function(){
+        box.style.animation = 'none';
+        box.style.opacity = 1;
+      });
+      var span = box.querySelector('span');
+      var name = span.getAttribute('data-name');
+      function conf(){ return 84 + Math.floor(Math.random() * 16); }
+      span.textContent = name + ' ' + conf() + '%';
+      /* 確信度の数値をちょこちょこ更新 */
+      (function tickConf(){
+        setTimeout(function(){
+          if (!box.classList.contains('lost')) span.textContent = name + ' ' + conf() + '%';
+          tickConf();
+        }, 700 + Math.random() * 1600);
+      })();
+      /* ランダムに一瞬途切れる */
+      (function dropout(){
+        setTimeout(function(){
+          if (!box.classList.contains('lost')) {
+            box.style.opacity = 0;
+            setTimeout(function(){ if (!box.classList.contains('lost')) box.style.opacity = 1; }, 60 + Math.random() * 220);
+          }
+          dropout();
+        }, 1800 + Math.random() * 5200);
+      })();
+      /* たまに認識ロスト→枠ごと消えて、しばらくして再認識 */
+      (function lose(){
+        setTimeout(function(){
+          box.classList.add('lost');
+          box.style.opacity = 0;
+          setTimeout(function(){
+            box.classList.remove('lost');
+            box.style.opacity = 1;
+            span.textContent = name + ' ' + conf() + '%';
+          }, 700 + Math.random() * 1300);
+          lose();
+        }, 9000 + Math.random() * 14000);
+      })();
+      /* 微妙なブレ＋たまに少しだけ位置がずれる */
+      var jx = 0, jy = 0, dx = 0, dy = 0;
+      function applyPos(){ box.style.transform = 'translate(' + (jx + dx) + 'px,' + (jy + dy) + 'px)'; }
+      (function jitter(){
+        setTimeout(function(){
+          jx = Math.random() * 3 - 1.5;
+          jy = Math.random() * 3 - 1.5;
+          applyPos();
+          jitter();
+        }, 120 + Math.random() * 300);
+      })();
+      (function drift(){
+        setTimeout(function(){
+          dx = Math.round(Math.random() * 18 - 9);
+          dy = Math.round(Math.random() * 14 - 7);
+          applyPos();
+          setTimeout(function(){ dx = 0; dy = 0; applyPos(); }, 1500 + Math.random() * 3000);
+          drift();
+        }, 6000 + Math.random() * 9000);
+      })();
+    });
+  })();
+
+
+  (function(){
+    var cv = document.getElementById('chThornCanvas');
+    if (!cv) return;
+    var ctx = cv.getContext('2d');
+    var W = cv.width, H = cv.height;
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var CX = 74, CY = 78, CORE = 17;
+
+    /* 棘の種: 角度・長さ・太さ・うねりの位相 */
+    var spikes = [];
+    var N = 30;
+    for (var i = 0; i < N; i++) {
+      var a = (i / N) * Math.PI * 2 + (Math.random() - 0.5) * 0.15;
+      var downBias = Math.max(0, Math.sin(a)) * 32;   /* 下向きの棘は長め */
+      spikes.push({
+        a: a,
+        len: 22 + Math.random() * 56 + downBias,
+        w: 0.028 + Math.random() * 0.045,
+        ph: Math.random() * Math.PI * 2,
+        sp: 0.4 + Math.random() * 0.9,
+        twitch: 0
+      });
+    }
+    var frags = [];
+    for (var j = 0; j < 6; j++) {
+      frags.push({x: CX + (Math.random() - 0.5) * 120, y: CY + (Math.random() - 0.5) * 150, s: 1 + Math.random() * 2.4, ph: Math.random() * 6});
+    }
+
+    function radiusAt(theta, t){
+      var r = CORE * (0.88 + 0.16 * Math.sin(theta * 3 + t * 0.7));
+      for (var i = 0; i < spikes.length; i++) {
+        var s = spikes[i];
+        var d = theta - s.a;
+        while (d > Math.PI) d -= Math.PI * 2;
+        while (d < -Math.PI) d += Math.PI * 2;
+        var pulse = 1 + 0.16 * Math.sin(t * s.sp * 2 + s.ph) + s.twitch;
+        r += s.len * pulse * Math.pow(Math.exp(-(d * d) / (2 * s.w * s.w)), 1.7);
+      }
+      return r;
+    }
+
+    function draw(t){
+      ctx.clearRect(0, 0, W, H);
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      var steps = 130;
+      for (var i = 0; i <= steps; i++) {
+        var th = (i / steps) * Math.PI * 2;
+        var r = radiusAt(th, t);
+        /* 座標を整数に丸めてドット絵っぽい段々に */
+        var x = Math.round(CX + Math.cos(th) * r);
+        var y = Math.round(CY + Math.sin(th) * r);
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+      ctx.fill();
+      /* 周りの小さな破片 */
+      frags.forEach(function(f){
+        var s = f.s * (0.8 + 0.3 * Math.sin(t * 1.7 + f.ph));
+        ctx.fillRect(Math.round(f.x + Math.sin(t + f.ph) * 1.5), Math.round(f.y + Math.cos(t * 0.8 + f.ph) * 1.5), Math.max(1, Math.round(s)), Math.max(1, Math.round(s)));
+      });
+    }
+
+    if (reduce) { draw(1); return; }
+    var running = true;
+    new IntersectionObserver(function(es){
+      es.forEach(function(e){ running = e.isIntersecting; });
+    }).observe(cv);
+
+    /* たまに1本の棘がビッと伸びる */
+    setInterval(function(){
+      var s = spikes[Math.floor(Math.random() * spikes.length)];
+      s.twitch = 0.35 + Math.random() * 0.4;
+      setTimeout(function(){ s.twitch = 0; }, 160 + Math.random() * 260);
+    }, 700);
+
+    var lastDraw = 0;
+    (function loop(ts){
+      var t = (ts || 0) * 0.001;
+      if (running && t - lastDraw > 0.085) { draw(t); lastDraw = t; }  /* コマ落としでドット感 */
+      requestAnimationFrame(loop);
+    })(0);
+  })();
+
+  };
+</script>
+<script>
+  window.__aboutActive = false;
+  window.__initAbout = function(){
+    var burger = document.getElementById('burger');
+    var menu = document.getElementById('spmenu');
+    burger.addEventListener('click', function(){
+      burger.classList.toggle('open');
+      menu.classList.toggle('open');
+    });
+    menu.querySelectorAll('a').forEach(function(a){
+      a.addEventListener('click', function(){
+        burger.classList.remove('open');
+        menu.classList.remove('open');
+      });
+    });
+    var els = document.querySelectorAll('#view-about .fade');
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+      });
+    }, {threshold: 0.12});
+    els.forEach(function(el){ io.observe(el); });
+
+    var cv = document.getElementById('aboutGrid');
+    if (!cv) return;
+    var ctx = cv.getContext('2d');
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    function resize(){
+      cv.width = window.innerWidth;
+      cv.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+    function warp(x, y, t){
+      return [
+        x + Math.sin(y * 0.007 + t * 1.1) * 20 + Math.sin((x + y) * 0.003 + t * 0.5) * 10,
+        y + Math.cos(x * 0.006 + t * 0.9) * 20 + Math.cos((x - y) * 0.0025 - t * 0.45) * 10
+      ];
+    }
+    function draw(t){
+      var W = cv.width, H = cv.height;
+      ctx.clearRect(0, 0, W, H);
+      ctx.strokeStyle = 'rgba(130,140,170,0.10)';
+      ctx.lineWidth = 1;
+      var gap = 52, x, y, p;
+      for (x = -gap; x <= W + gap; x += gap) {
+        ctx.beginPath();
+        for (y = -32; y <= H + 32; y += 20) {
+          p = warp(x, y, t);
+          if (y === -32) ctx.moveTo(p[0], p[1]); else ctx.lineTo(p[0], p[1]);
+        }
+        ctx.stroke();
+      }
+      for (y = -gap; y <= H + gap; y += gap) {
+        ctx.beginPath();
+        for (x = -32; x <= W + 32; x += 20) {
+          p = warp(x, y, t);
+          if (x === -32) ctx.moveTo(p[0], p[1]); else ctx.lineTo(p[0], p[1]);
+        }
+        ctx.stroke();
+      }
+    }
+    if (reduce) { draw(0); return; }
+    (function loop(ts){
+      if (window.__aboutActive) draw((ts || 0) * 0.0005);
+      requestAnimationFrame(loop);
+    })(0);
+  };
+</script>
+<script>
+  (function(){
+    var topView = document.getElementById('view-top');
+    var charView = document.getElementById('view-char');
+    var aboutView = document.getElementById('view-about');
+    var hero = document.getElementById('topHero');
+    var mover = document.getElementById('charMover');
+    var current = 'top', busy = false, charInited = false, aboutInited = false;
+
+    function lock(v){ document.body.style.overflow = v ? 'hidden' : ''; }
+    function initCharOnce(){ if (!charInited) { charInited = true; window.__initChar(); } }
+    function initAboutOnce(){ if (!aboutInited) { aboutInited = true; window.__initAbout(); } }
+    function noanim(el){
+      el.classList.add('noanim');
+      requestAnimationFrame(function(){ requestAnimationFrame(function(){ el.classList.remove('noanim'); }); });
+    }
+    function closeMenus(){
+      document.querySelectorAll('.nav-burger.open, #burger.open').forEach(function(b){ b.classList.remove('open'); });
+      document.querySelectorAll('.nav-menu.open, #spmenu.open').forEach(function(m){ m.classList.remove('open'); });
+    }
+    /* 常時メニュー（トップ／マイキャラ紹介ビュー）の開閉 */
+    document.querySelectorAll('.nav-burger').forEach(function(b){
+      var menu = b.parentElement.querySelector('.nav-menu');
+      b.addEventListener('click', function(){
+        b.classList.toggle('open');
+        if (menu) menu.classList.toggle('open');
+      });
+      /* リンクを押したときのメニュー閉じは nav() 側で少し遅れて行う */
+    });
+
+    function resetTopInstant(){
+      hero.classList.add('noanim');
+      hero.classList.remove('leaving-char', 'to-char', 'leaving-about');
+      topView.classList.remove('backdrop');
+      void hero.offsetWidth;
+      hero.classList.remove('noanim');
+    }
+    function hideOtherInstant(target){
+      if (target !== 'char' && charView.classList.contains('open')) {
+        noanim(charView);
+        charView.classList.remove('open');
+      }
+      if (target !== 'about' && aboutView.classList.contains('open')) {
+        noanim(aboutView);
+        aboutView.classList.remove('open');
+        window.__aboutActive = false;
+      }
+      topView.style.visibility = '';
+      resetTopInstant();
+      current = 'top';
+    }
+
+    /* トップが見えている状態から、マイキャラ紹介への遷移を始める */
+    function startCharFromTop(){
+      busy = true;
+      window.scrollTo(0, 0);
+      lock(true);
+      /* 1) hand・ボタン類が左へ、タイトルが右へ捌ける */
+      hero.classList.add('leaving-char');
+      /* 2) キャラはサイズそのまま右へスライド（枠・トゲ・グリッドもそのまま） */
+      setTimeout(function(){
+        hero.classList.add('to-char');
+      }, 150);
+      /* 3) 下から紹介文と矩形だけがせり上がる（トップのヒーローは背景に残る） */
+      setTimeout(function(){
+        charView.classList.add('open');
+        topView.classList.add('backdrop');
+      }, 800);
+      setTimeout(function(){
+        current = 'char';
+        busy = false;
+      }, 1550);
+    }
+
+    function goChar(instant){
+      if (current === 'char') return;
+      initCharOnce();
+      charView.scrollTop = 0;
+      if (instant) {
+        if (current !== 'top') hideOtherInstant('char');
+        hero.classList.add('noanim');
+        hero.classList.add('leaving-char', 'to-char');
+        topView.classList.add('backdrop');
+        void hero.offsetWidth;
+        hero.classList.remove('noanim');
+        noanim(charView);
+        charView.classList.add('open');
+        lock(true);
+        current = 'char';
+        return;
+      }
+      if (busy) return;
+      if (current === 'about') {
+        /* トップで止まらず一続きに: 中の人を消し、hand が白を引いて元の位置に戻る。
+           キャラはまだ動かさない。hand が戻りきってから、通常の紹介への遷移を始める */
+        busy = true;
+        lock(true);
+        hero.classList.add('noanim');
+        hero.classList.add('leaving-about', 'exit-rest');
+        topView.style.visibility = '';
+        void hero.offsetWidth;
+        hero.classList.remove('noanim');
+        aboutView.classList.remove('open');
+        window.__aboutActive = false;
+        setTimeout(function(){
+          hero.classList.remove('leaving-about');
+        }, 420);
+        setTimeout(function(){
+          startCharFromTop();
+          setTimeout(function(){ hero.classList.remove('exit-rest'); }, 120);
+        }, 1400);
+        return;
+      }
+      if (current !== 'top') hideOtherInstant('char');
+      startCharFromTop();
+    }
+
+    /* 中の人の下に「白で覆われたトップ」を用意し、中の人をフェードで消してから
+       hand と白背景を右から左へ戻す（中の人→トップと共通の片付け動作） */
+    function uncoverFromAbout(done){
+      hero.classList.add('noanim');
+      hero.classList.add('leaving-about');
+      topView.style.visibility = '';
+      void hero.offsetWidth;
+      hero.classList.remove('noanim');
+      aboutView.classList.remove('open');
+      window.__aboutActive = false;
+      setTimeout(function(){
+        hero.classList.remove('leaving-about');
+      }, 420);
+      setTimeout(done, 1400);
+    }
+
+    function goAbout(instant){
+      if (current === 'about') return;
+      initAboutOnce();
+      if (current !== 'top') hideOtherInstant('about');
+      aboutView.scrollTop = 0;
+      if (instant) {
+        noanim(aboutView);
+        aboutView.classList.add('open');
+        window.__aboutActive = true;
+        topView.style.visibility = 'hidden';
+        lock(true);
+        current = 'about';
+        return;
+      }
+      if (busy) return;
+      busy = true;
+      window.scrollTo(0, 0);
+      lock(true);
+      /* 手が右へ移動しながら、白背景の右端を引いて敷く（同じ速さ・同じイージング） */
+      hero.classList.add('leaving-about');
+      setTimeout(function(){
+        aboutView.classList.add('open');
+        window.__aboutActive = true;
+      }, 920);
+      setTimeout(function(){
+        topView.style.visibility = 'hidden';
+        hero.classList.remove('leaving-about');
+        current = 'about';
+        busy = false;
+      }, 1450);
+    }
+
+    function goTop(){
+      if (current === 'top') return;
+      if (busy) { setTimeout(goTop, 500); return; }
+      if (current === 'about') {
+        busy = true;
+        current = 'top';
+        uncoverFromAbout(function(){ lock(false); busy = false; });
+        return;
+      }
+      /* char から戻る: シートが沈み、キャラが元の位置へ戻り、捌けたものが帰ってくる */
+      busy = true;
+      current = 'top';
+      charView.classList.remove('open');
+      setTimeout(function(){
+        topView.classList.remove('backdrop');
+        hero.classList.remove('leaving-char', 'to-char');
+      }, 550);
+      setTimeout(function(){ lock(false); busy = false; }, 1500);
+    }
+
+    function push(hash){
+      /* ファイルを直接開いた環境などでは履歴操作が失敗することがある。
+         失敗しても画面遷移自体は止めない。 */
+      try {
+        if (location.hash !== hash) history.pushState(null, '', hash || (location.pathname + location.search));
+      } catch (e) { /* 履歴はあきらめて遷移だけ続ける */ }
+    }
+    function nav(target){
+      /* 先にページ側の用意・遷移を始めてから、少し遅れてメニューを閉じる。
+         青い円が小さくなる後ろで、すでにページが動き出している感じにする。 */
+      if (target === 'char') { push('#char'); goChar(false); }
+      else if (target === 'about') { push('#about'); goAbout(false); }
+      else { push(''); goTop(); }
+      setTimeout(closeMenus, 140);
+    }
+    document.querySelectorAll('[data-nav]').forEach(function(a){
+      a.addEventListener('click', function(e){
+        e.preventDefault();
+        nav(a.getAttribute('data-nav'));
+      });
+    });
+
+    window.addEventListener('popstate', function(){
+      if (location.hash === '#char') goChar(false);
+      else if (location.hash === '#about') goAbout(false);
+      else goTop();
+    });
+
+    window.__ready = function(){
+      if (location.hash === '#char') goChar(true);
+      else if (location.hash === '#about') goAbout(true);
+    };
+  })();
+</script>
+<script>
   (function(){
     var loader = document.getElementById('loader');
     if (!loader) return;
@@ -348,7 +1349,7 @@
     var finished = false;
 
     /* 画像のダウンロードだけでなく「デコード（表示準備）」まで待つ */
-    var imgs = Array.prototype.slice.call(document.querySelectorAll('.hero img.layer'));
+    var imgs = Array.prototype.slice.call(document.querySelectorAll('#view-top .char-img, #view-top .hand-layer'));
     var decoded = Promise.all(imgs.map(function(im){
       if (im.decode) return im.decode().catch(function(){});
       return im.complete ? Promise.resolve() : new Promise(function(res){
@@ -379,7 +1380,7 @@
             loader.classList.add('done');
             setTimeout(function(){
               loader.classList.add('hide');
-              setTimeout(function(){ loader.remove(); }, 500);
+              setTimeout(function(){ loader.remove(); if (window.__ready) window.__ready(); }, 500);
             }, 480);
           }, wait);
         });
