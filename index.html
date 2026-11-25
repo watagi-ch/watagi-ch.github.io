@@ -81,15 +81,20 @@
   #view-about.open{opacity:1; visibility:visible; transition:opacity .45s ease, visibility 0s;}
   #view-char.noanim, #view-about.noanim{transition:none !important;}
   /* ===== 常時表示メニュー（全画面共通・右上に固定、PC・SP共通） ===== */
-  /* トップでは出さない（大きなボタンと役目が被るため）。紹介・中の人の画面だけで出す */
-  .nav-burger{display:none; position:fixed; top:12px; right:14px; z-index:300; width:46px; height:46px; border-radius:50%; border:2px solid #0000ee; background:#fff; cursor:pointer; padding:0;}
+  /* トップでは出さない（大きなボタンと役目が被るため）。紹介・中の人の画面だけで出す。
+     PCでは画面の右端ではなく、コンテンツ（ステージ）の右上に置く */
+  .nav-burger{display:none; position:fixed; top:12px; right:max(14px, calc(50% - 236px)); z-index:300; width:46px; height:46px; border-radius:50%; border:2px solid #0000ee; background:#fff; cursor:pointer; padding:0;}
   #view-char.open ~ .nav-burger, #view-about.open ~ .nav-burger{display:block;}
+  #view-about.open ~ .nav-burger{right:max(14px, calc(50% - 286px));}
+  /* 紹介ページのステージは、スクロールバーの幅に引っ張られず画面中央（vw基準）で
+     トップのヒーローと揃える（PCで左に少しずれて見える対策） */
+  body #view-char .stage{margin-left:max(0px, calc(50vw - 250px)); margin-right:auto;}
   .nav-burger span{display:block; width:20px; height:2px; background:#0000ee; margin:5px auto; transition:transform .25s ease, opacity .2s ease;}
   .nav-burger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
   .nav-burger.open span:nth-child(2){opacity:0;}
   .nav-burger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
-  .nav-menu{display:flex; position:fixed; inset:0; z-index:290; background:#0000ee; flex-direction:column; align-items:center; justify-content:center; gap:34px; clip-path:circle(0% at calc(100% - 37px) 35px); visibility:hidden; transition:clip-path .38s ease-in, visibility 0s .38s;}
-  .nav-menu.open{clip-path:circle(142% at calc(100% - 37px) 35px); visibility:visible; transition:clip-path .7s cubic-bezier(.3,1.45,.5,1), visibility 0s;}
+  .nav-menu{display:flex; position:fixed; inset:0; z-index:290; background:#0000ee; flex-direction:column; align-items:center; justify-content:center; gap:34px; clip-path:circle(0% at calc(100% - max(37px, calc(50% - 213px))) 35px); visibility:hidden; transition:clip-path .38s ease-in, visibility 0s .38s;}
+  .nav-menu.open{clip-path:circle(142% at calc(100% - max(37px, calc(50% - 213px))) 35px); visibility:visible; transition:clip-path .7s cubic-bezier(.3,1.45,.5,1), visibility 0s;}
   .nav-menu a{color:#fff; text-decoration:none; font-weight:900; font-size:26px; letter-spacing:.08em; opacity:0; transform:translateY(30px) scale(.85); font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","Noto Sans JP",sans-serif;}
   .nav-menu.open a{opacity:1; transform:translateY(0) scale(1); transition:opacity .3s ease, transform .55s cubic-bezier(.3,1.8,.5,1);}
   .nav-menu.open a:nth-child(2){transition-delay:.08s;}
