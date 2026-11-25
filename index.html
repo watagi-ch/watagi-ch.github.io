@@ -95,6 +95,12 @@
   body #view-char .stage{background:none;}
   body #view-char .stage::before{content:''; position:absolute; left:0; right:0; top:133.333vw; bottom:0; background:#0000ff; z-index:-1;}
   @media (min-width:500px){ body #view-char .stage::before{top:666.7px;} }
+  /* Xアプリ内ブラウザ対策その2: 青を必要とする第5章ブロック自身にも青を持たせる
+     （巨大なステージ背景レイヤーに頼らない）。固定ビューの高さも画面に合わせる */
+  body #view-char .ch5{background:#0000ff;}
+  body #view-char, body #view-about{height:100dvh;}
+  /* 開ききった後は transform を外す（iOS系でスクロール領域の描画が抜ける対策） */
+  body #view-char.settled{transform:none; transition:none;}
   .nav-burger span{display:block; width:20px; height:2px; background:#0000ee; margin:5px auto; transition:transform .25s ease, opacity .2s ease;}
   .nav-burger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
   .nav-burger.open span:nth-child(2){opacity:0;}
@@ -1176,7 +1182,7 @@
     function hideOtherInstant(target){
       if (target !== 'char' && charView.classList.contains('open')) {
         noanim(charView);
-        charView.classList.remove('open');
+        charView.classList.remove('open', 'settled');
       }
       if (target !== 'about' && aboutView.classList.contains('open')) {
         noanim(aboutView);
@@ -1205,6 +1211,7 @@
         topView.classList.add('backdrop');
       }, 800);
       setTimeout(function(){
+        charView.classList.add('settled');
         current = 'char';
         busy = false;
       }, 1550);
@@ -1223,6 +1230,7 @@
         hero.classList.remove('noanim');
         noanim(charView);
         charView.classList.add('open');
+        charView.classList.add('settled');
         lock(true);
         current = 'char';
         return;
@@ -1313,6 +1321,8 @@
       /* char から戻る: シートが沈み、キャラが元の位置へ戻り、捌けたものが帰ってくる */
       busy = true;
       current = 'top';
+      charView.classList.remove('settled');
+      void charView.offsetWidth;
       charView.classList.remove('open');
       setTimeout(function(){
         topView.classList.remove('backdrop');
